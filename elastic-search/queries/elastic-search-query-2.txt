@@ -1,0 +1,311 @@
+
+GET _cat/indices
+
+
+GET movie-index/_mapping // full schema view
+GET movie-index/_mapping/field/name // specific properties mapping view
+GET logstash-2024.04.08/_mapping
+
+// query 
+// - match query (full text search)
+// - disjunction max query (combines multiple queries and returns documents that match any of the queris with the highest score)
+// - ids query
+// - range query
+// - bool query
+
+
+GET movie-index
+
+GET movie-index/_search
+{
+  //"size": 20, 
+  //'from':"2" same as skip
+  //"source": ['field names'], in result which filed you want to get. supports wildcard 'director.*'
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+// match query
+
+GET movie-index/_search
+{
+  "query": {
+    "match": {
+      "description": "his"
+    }
+  }
+}
+
+GET movie-index/_search
+{
+  "query": {
+    "match": {
+      "director.name": "Francis Ford Coppola"
+    }
+  }
+}
+
+GET movie-index/_search
+{
+  "query": {
+    "match": {
+      "description":{
+        "query": "imprisoned aging hitmen", // convert it to three toke
+        "operator": "or" // if 'or' then any of word match will return. if 'and' then all word must contain
+      }
+    }
+  }
+}
+
+// 
+
+
+// disjunction query
+
+GET movie-index/_search
+{
+  "query": {
+    "dis_max": {
+      "tie_breaker": 0.7,
+      "boost": 1.2,
+      "queries": [
+        {
+          "match": {
+            "name": "The Dark Knight"
+          }
+        },
+        {
+          "match": {
+            "description": "when as Joker"
+          }
+        }
+        ]
+    }
+  }
+}
+
+// term query - used to find doc that contain specific exact term in a perticular field
+GET movie-index/_search
+{
+  "query": {
+    "term": {
+      "director.name": {
+        "value": "The Shawshank Redemption",
+        "case_insensitive": true
+      }
+    }
+  }
+}
+
+
+// multi match query
+GET movie-index/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "two",
+      "fields": ["description","name"]
+       //"type": "best_fields" ,
+       //"tie_breaker": 0
+    }
+  }
+}
+
+// ids query
+GET movie-index/_search
+{
+  "query": {
+    "ids": {
+      "values": [
+          "1","2"
+        ]
+    }
+  }
+}
+
+
+// range query
+
+GET movie-index/_search
+{
+  "query": {
+    "range": {
+      "rating": {
+        "gte": 8.8,
+        "lte": 9
+      }
+    }
+  }
+}
+
+GET movie-index/_search
+{
+  "query": {
+    "range": {
+      "date_published": {
+        "gte": "2023-01-91",
+        "lte": "2034-06-30"
+        //"format": "dd/MM/yyyy||yyyy", default format yyyy/mm/dd
+        //"time_zone": "+01:00"
+      }
+    }
+  }
+}
+
+
+// bool query - used to combine multiple subqueries using boolean logic (AND, OR , NOT)
+
+GET movie-index/_search
+{
+  "query": {
+    "bool": {
+      "must": [ //  'must' act as 'and', 'should' act as 'or', 'must_not' act as 'not'
+        {
+          "multi_match": {
+            "query": "",
+            "fields": []
+          }
+        }
+      ],
+      "must_not": [
+        {}
+      ],
+      "should": [
+        {}
+      ],
+      "filter": [
+        {}
+      ]
+    }
+  }
+}
+
+
+// exist query
+GET movie-index/_search
+{
+  "query": {
+    "exists": {
+      "field": "name" // if this field is exist or not, empty string ('') act as exist. null, [] act not exist
+    }
+  }
+}
+
+// wildcard query
+GET movie-index/_search
+{
+  "query": {
+    "wildcard": {
+      "name": {
+        "value": "*ption" // ? match any single character, * any sequence of character
+      }
+    }
+  }
+}
+
+
+
+// match phrase prefix query
+//Imagine you have an e-commerce website and you want to implement a search functionality for products. Users should be able //to start typing a product name, and the system should suggest matching products as they type.
+GET movie-index/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "name": "Ice" // prefix letter must be match
+    }
+  }
+}
+
+// match_phrase query  - exact match what data stored in the doc .
+
+GET movie-index/_search
+{
+  "query": {
+    "match_phrase": {
+      "name": "Inception"
+    }
+  }
+}
+
+// nested query
+GET movie-index/_search
+{
+  "query": {
+    "nested": {
+      "path": "actorsu",
+      //"inner_hits": {},   
+      "query": {
+        "match": {
+          "actors.name": "Marlon Brando"
+        }
+      }
+    }
+  }
+}
+
+
+PUT /movie-index
+{
+  "mappings": {
+    "properties": {
+      "name":{
+          "type": "text"
+      },
+      "rating":{
+        "type": "float"
+      },
+      "budget":{
+        "type": "float"
+      },
+      "director":{
+        "properties": {
+          "name":{
+            "type":"text"
+          },
+          "email":{
+            "type":"keyword"
+          }
+        }
+      },
+      "description":{
+        "type": "text"
+      },
+      "actors":{
+        "type": "nested",
+        "properties": {
+          "name":{
+            "type":"text"
+          },
+          "age":{
+            "type":"integer"
+          }
+        }
+      }
+    }
+  }
+}
+
+POST /movie-index/_bulk
+{"index":{"_id":1}}
+{"name":"Inception","rating":8.8,"budget":160000000,"director":{"name":"Christopher Nolan","email":"nolan@example.com"},"description":"A thief who enters the dreams of others to steal their secrets from their subconscious.","actors":[{"name":"Leonardo DiCaprio","age":46},{"name":"Joseph Gordon-Levitt","age":41},{"name":"Ellen Page","age":35}]}
+{"index":{"_id":2}}
+{"name":"The Shawshank Redemption","rating":9.3,"budget":25000000,"director":{"name":"Frank Darabont","email":"darabont@example.com"},"description":"Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.","actors":[{"name":"Tim Robbins","age":63},{"name":"Morgan Freeman","age":85}]}
+{"index":{"_id":3}}
+{"name":"The Godfather","rating":9.2,"budget":6000000,"director":{"name":"Francis Ford Coppola","email":"coppola@example.com"},"description":"The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.","actors":[{"name":"Marlon Brando","age":80},{"name":"Al Pacino","age":82},{"name":"James Caan","age":82}]}
+{"index":{"_id":4}}
+{"name":"The Dark Knight","rating":9.0,"budget":185000000,"director":{"name":"Christopher Nolan","email":"nolan@example.com"},"description":"When the menace known as The Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.","actors":[{"name":"Christian Bale","age":49},{"name":"Heath Ledger","age":28},{"name":"Gary Oldman","age":64}]}
+{"index":{"_id":5}}
+{"name":"Schindler's List","rating":8.9,"budget":22000000,"director":{"name":"Steven Spielberg","email":"spielberg@example.com"},"description":"In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.","actors":[{"name":"Liam Neeson","age":70},{"name":"Ben Kingsley","age":78},{"name":"Ralph Fiennes","age":59}]}
+{"index":{"_id":6}}
+{"name":"Pulp Fiction","rating":8.9,"budget":8000000,"director":{"name":"Quentin Tarantino","email":"tarantino@example.com"},"description":"The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.","actors":[{"name":"John Travolta","age":68},{"name":"Uma Thurman","age":53},{"name":"Samuel L. Jackson","age":74}]}
+{"index":{"_id":7}}
+{"name":"Forrest Gump","rating":8.8,"budget":55000000,"director":{"name":"Robert Zemeckis","email":"zemeckis@example.com"},"description":"The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate, and other historical events unfold from the perspective of an Alabama man with an IQ of 75, whose only desire is to be reunited with his childhood sweetheart.","actors":[{"name":"Tom Hanks","age":65},{"name":"Robin Wright","age":56}]}
+{"index":{"_id":8}}
+{"name":"The Lord of the Rings: The Return of the King","rating":8.9,"budget":94000000,"director":{"name":"Peter Jackson","email":"jackson@example.com"},"description":"Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.","actors":[{"name":"Elijah Wood","age":41},{"name":"Ian McKellen","age":83},{"name":"Viggo Mortensen","age":65}]}
+{"index":{"_id":9}}
+{"name":"Fight Club","rating":8.8,"budget":63000000,"director":{"name":"David Fincher","email":"fincher@example.com"},"description":"An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into something much, much more.","actors":[{"name":"Brad Pitt","age":58},{"name":"Edward Norton","age":52}]}
+{"index":{"_id":10}}
+{"name":"Inglourious Basterds","rating":8.3,"budget":70000000,"director":{"name":"Quentin Tarantino","email":"tarantino@example.com"},"description":"In Nazi-occupied France during World War II, a plan to assassinate Nazi leaders by a group of Jewish U.S. soldiers coincides with a theatre owner's vengeful plans for the same.","actors":[{"name":"Brad Pitt","age":58},{"name":"Christoph Waltz","age":65},{"name":"Diane Kruger","age":45}]}
+
