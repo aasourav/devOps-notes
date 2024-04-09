@@ -1,0 +1,224 @@
+GET _cat/nodes?v
+GET _cat/aliases?v
+GET _cat/indices?v
+
+POST _refresh
+
+PUT bank
+{
+  "settings": {
+    "number_of_replicas": 1,
+    "number_of_shards": 1
+  }
+}
+
+PUT shakespeare
+{
+  "mappings": {
+    "properties": {
+      "speaker":{
+        "type": "keyword"
+      },
+      "play_name":{
+        "type": "keyword"
+      },
+      "line_id":{
+        "type": "integer"
+      },
+      "speech_number":{
+        "type": "integer"
+      }
+    }
+  },
+  "settings": {
+    "number_of_replicas": 1,
+    "number_of_shards": 1
+  }
+}
+
+PUT logs
+{
+  "mappings": {
+    "properties": {
+      "geo":{
+        "properties": {
+          "coordinates":{
+             "type":"geo_point"
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "number_of_replicas": 1,
+    "number_of_shards": 1
+  }
+}
+
+POST /shakespeare/_bulk
+{"index":{"_index":"shakespeare","_id":1}}
+{"type":"scene","line_id":2,"play_name":"Henry IV","speech_number":"","line_number":"","speaker":"","text_entry":"SCENE I. London. The palace."}
+{"index":{"_index":"shakespeare","_id":2}}
+{"type":"line","line_id":3,"play_name":"Henry IV","speech_number":"","line_number":"","speaker":"","text_entry":"Enter KING HENRY, LORD JOHN OF LANCASTER, the EARL of WESTMORELAND, SIR WALTER BLUNT, and others"}
+
+#get doc
+GET bank/_doc/0
+
+#create doc
+PUT bank/_doc/0
+{
+    "account_number": 0,
+    "balance": 39225,
+    "firstname": "Ahsan",
+    "lastname": "Sourav",
+    "age": 32,
+    "gender": "M",
+    "address": "27, dilkusha, motizil, dhaka",
+    "employer": "Pyrami",
+    "email": "amberduke@pyrami.com",
+    "city": "Dhaka",
+    "state": "IL"
+  }
+  
+#update doc
+POST bank/_update/0
+{
+  "doc": {
+    "state":"dhaka"
+  }
+}
+
+#delete doc
+DELETE bank/_doc/1
+#delete index
+DELETE shakespeare
+
+#number of doc will show
+GET bank/_search?size=10
+
+# non analyzed search (keyword)
+
+#single search keyword
+GET bank/_search
+{
+ "size": 20, 
+  "query": {
+    "term": {
+      "state.keyword": {
+        "value": "dhaka"
+      }
+    }
+  }
+}
+
+# multiple search keyword
+GET bank/_search?size=2
+{
+  "query": {
+    "terms": {
+      "state.keyword": [
+        "dhaka",
+        "VA"
+      ]
+    }
+  }
+}
+
+
+# anylyzed search 
+# learn analyzer from doc
+
+GET _analyze
+{
+  "analyzer": "english",
+  "text": "the Quick BROwn foxes jumped oVer the fence."
+}
+
+
+GET shakespeare/_search?size=3
+
+# analyzed search
+GET shakespeare/_search
+{
+  "query": {
+    "match": {
+      "text_entry": "king"
+    }
+  }
+}
+
+#non analyzed search
+GET shakespeare/_search
+{
+  "query": {
+    "term": {
+      "text_entry.keyword": {
+        "value": "King"
+      }
+    }
+  }
+}
+
+# metric aggregations
+GET bank/_search
+{
+  "size": 1, 
+  "aggs": {
+    "avg_age": {
+      "sum": {
+        "field": "age"
+      }
+    }
+  }
+}
+
+# bucket aggregations
+GET bank/_search
+{
+  "size": 0,
+  "aggs": {
+    "account_per_state": {
+      "terms": {
+        "field": "state.keyword",
+        "size": 10
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
