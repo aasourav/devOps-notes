@@ -1,0 +1,71 @@
+GET _cat/indices
+GET _refresh
+
+GET movie-index
+
+GET movie-index/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+//metric aggregation
+
+GET movie-index/_search
+{
+  "size": 0, 
+  "aggs": {
+    "Average Rating": {
+      "avg": {
+        "field": "rating"
+      }
+    },
+    "Total Budget":{
+      "sum": {
+        "field": "budget"
+      }
+    },
+    "Minimum Budget":{
+      "min": {
+        "field": "budget"
+      }
+    },
+    "Maximum Budget":{
+      "max": {
+        "field": "budget"
+      }
+    },
+    "Distinct Director":{
+      "cardinality": { // unique name. gives approximate value. if we want exact value. use precision_threshold
+        "field": "name.keyword",
+        "precision_threshold": 100
+      }
+    },
+    "Stats":{
+      "stats": { // multi valued agg
+        "field": "budget"
+      }
+    }
+  }
+}
+
+// Bucket aggregation
+
+GET movie-index/_search
+{
+  "size": 0,
+  "aggs": {
+    "groups_by_rating": {
+      "terms": {
+        "field": "rating", // for text ex: genre.keyword
+        "size": 10,
+        "min_doc_count": 3, // if you want to filter.,
+        "missing": {"field":"rating"}// if missing then it will be include as No genre
+      }
+    }
+  }
+}
+
+
+GET _cat/indices
