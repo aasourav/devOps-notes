@@ -1,0 +1,15 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens33:
+      dhcp4: no
+      addresses:
+        - 172.17.18.81/24
+      routes:
+        - to: default
+          via: 172.17.18.1
+      nameservers:
+          addresses: [8.8.8.8, 8.8.4.4] 
+          # sudo netplan apply
+          # vim /etc/netplan/   tab(theere jus one file)
