@@ -148,7 +148,11 @@ string functions: there are lot of string function . see the doc
 |"into" | 3|
 
 
-
+```go
+    defer func() {
+            log.Printf("defer calls last")
+    }()
+```
 
 
 
