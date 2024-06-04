@@ -107,12 +107,14 @@ by using charts and adding the objects according to the specific instructions in
 
 ### Release:
 when a chart apply to your cluster , a release is created 
+
 ![alt text](./images/image2.png)
 
 A release is a single installation of an application using a Helm chart.
 
 ### Revisions:
 within each release you can have multiple revisions.
+
 ![alt text](./images/image3.png)
 
 Each revision is like a snapshot of the application. Every time a change is made to the application such as an upgrade of the image or change replicas or configuration objects a new  revision is created.
@@ -123,6 +125,7 @@ Just like how we can find all kind of images in docker hub. We can find helm cha
 ### Metadata
 To keep track of what it did in our cluster ,such as releases that it installed, the charts used , revision state and so on helm will need a place to save this data . This deta is known as metadata. That is data about data.
 It wouldn't too useful if Helm would save this on our local computer . If another person would need to work with our releases through helm , they would need of copy of this data , instead Helm does the smart thing and saves the metadata directly in our k8s cluster as k8s secrets. 
+
 ![alt text](./images/image4.png)
 
 This way the data survives and as long as the kubernetes cluster survives. everyone from our team can access it .
