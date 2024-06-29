@@ -7,7 +7,7 @@ to resolve these issues Volumes comes into the picture.
 
 volume: volume is directory with some data in it. and the data is accessible to the pods.
 
-![alt text](image.png)
+![alt text](./images/image.png)
 
 ## different types of volume
 
@@ -79,7 +79,7 @@ Persistent Volumes: is a k8s resource and it's can be created using yaml just li
 
 it's an abstract component and it must take storage from the actual physical storage like Aws EBS, NFS servers
 
-![alt text](image-2.png)
+![alt text](./images/image-2.png)
 
 ```yaml
 apiVersion: v1
@@ -128,7 +128,7 @@ different types of accessMode:
 - RearWriteOnce: if pods running on same nodes - ReadOnlyOnce:The volume can be mounted as read-write by a single node and can be used by a single Pod at a time.
 - ReadOnlyMany: The volume can be mounted as read-only by many nodes and can be used by multiple Pods simultaneously for reading. - ReadWRiteOncePod:
 
-  ![alt text](image-1.png)
+  ![alt text](./images/image-1.png)
 
 If a user deletes a PVC in active use by a Pod, the PVC is not removed immidiately . PVC removed when PVS is no longer used. see more doc (persistent volumes)
 
@@ -140,7 +140,7 @@ that's why Storage Class comes into the picture.
 
 Storage class is another K8s resource. in which we specify how the pv should be created dynamically
 
-![alt text](image-3.png)
+![alt text](./images/image-3.png)
 
 In this picture you can see `provisioner` field. it specify how the PV should be porvisioned (how the PV should be created) this is like one time job
 
