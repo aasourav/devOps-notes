@@ -153,12 +153,3 @@ string functions: there are lot of string function . see the doc
             log.Printf("defer calls last")
     }()
 ```
-
-
-
-
-
-
-
-
-

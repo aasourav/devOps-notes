@@ -63,9 +63,9 @@ now still have some problems. if a pod stays in different node then data will be
 solution is take out the storage from node and move it to the external storage like
 aws ebs.
 
-### that's why Persistent volumes comes into the picture.
+### that's why Persistent volumes come into the picture.
 
-the volume we discussed so far ephimeral volumes. meaning when a pod/nodes get deleted. data associated with volumes will get lost.
+the volume we discussed so far ephemeral volumes. meaning when a pod/nodes get deleted. data associated with volumes will get lost.
 
 Persistent volumes don't depent on any individual nodes or pods that uses the persistent volumes.
 
