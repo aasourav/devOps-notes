@@ -224,7 +224,8 @@ now it will be approved . for prove you can run `kubectl get csr`
 
 now to see the certificate run
 
-`k get csr name -oyaml`
+`k get certificatesigningrequests.certificates.k8s.io name -oyaml`
+
 now we can see under `status`, name `certificate`
 
 copy this and undecode it and create a `.csr` file and paste it .
