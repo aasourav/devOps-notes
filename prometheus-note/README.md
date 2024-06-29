@@ -18,7 +18,7 @@ prometheus is a system monotoring and alerting toolkit. it's a platform agnostic
 
 from where we are going to take this entire metrics or information . ans: by job exporter come to the picture
 
-![alt text](image.png)
+![alt text](./images/image.png)
 
 When talk about exporter, you can think it as agent.
 
@@ -32,25 +32,25 @@ prometheus by default take every 15sec to grab the metrics. how can we able to g
 
 for this case prometheus uses **push gateway**
 
-![alt text](image-1.png)
+![alt text](./images/image-1.png)
 
 lets say a job is running for 5s. push gateway will going to take those metrics and will going to store it in a push gateway. as soon as 5s is over promethus not doing this stuff but push gateway will store it . when interval is come (prometheus will scrub the data) prometheus server is going to take those data from push gateway.
 
 ## Alert Manager
 
-![alt text](image-2.png)
+![alt text](./images/image-2.png)
 Alert manager do the send the alert to the email (ex: you memory exceeded, server down etc)
 
 ## Dashboard
 
-![alt text](image-3.png)
+![alt text](./images/image-3.png)
 
 Dashboard is for visualize the data. we can integrate third party dashboard like grafana
 
 ## Service discovery
 
 when we talk about multiple targets which prometheus will going to scrub (prometheus will going to scrub the metrics) that all is discoverd with a process or component which is service discovery.
-![alt text](image-4.png)
+![alt text](./images/image-4.png)
 
 ## Basic Terminology of Prometheus
 
@@ -69,7 +69,7 @@ when we talk about multiple targets which prometheus will going to scrub (promet
 
 we know prometheus server is just responsible for taking the metrics (pull the metrics). these metrics will actually come from other system
 
-![alt text](image-5.png)
+![alt text](./images/image-5.png)
 
 we also know if you want to actullay sent the metrics to the prometheus server. you need install something thats called **Exporters**
 
@@ -87,7 +87,7 @@ _Job: Job is a logical collections of multiple targets_
 
 now what is target:
 
-![alt text](image-6.png)
+![alt text](./images/image-6.png)
 
 every exporter will become target.
 ex: we need node info so node exporter will become target.
@@ -123,7 +123,7 @@ that is actually called
 
 ### recording rules
 
-![alt text](image-7.png)
+![alt text](./images/image-7.png)
 
 now lets say you linux server gets down
 now time series db will put these thing to 1-> 0
@@ -177,6 +177,6 @@ every change you must have to restart the server.
 to see the config
 status -> configuration
 etc/prometheus/prometheus.yaml
-![alt text](image-8.png)
+![alt text](./images/image-8.png)
 
 Ref video: https://www.youtube.com/watch?v=XXr8tMlUKfk&t=1212s
