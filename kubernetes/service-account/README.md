@@ -81,3 +81,5 @@ you have to create toke for it.
 ```
 
 Note: You should only create a service account token `Secret` obj if you can't use the `TokenRequest` API to obtain a token.
+
+# Service account documentation paused. Have to learn more about it.
