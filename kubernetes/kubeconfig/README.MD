@@ -256,12 +256,14 @@ rest of the things is similiar to WAY-2
 now create user and context as like before
 
 #### create user
-
-kubectl config set-credentials user_name --client-certificate .crt_path --client-key .key_path --embed-certs-true
+```sh
+kubectl config set-credentials user_name --client-certificate .crt_path --client-key .key_path --embed-certs true
+```
 
 #### create context
-
+```sh
 kubectl config set-context context-name --cluster cluster-name --user user-name-which-we-want-to-map-with
+```
 
 all are same .
 
