@@ -79,3 +79,5 @@ you have to create toke for it.
     kubectl create token sa_name # it has expiry date by default. you can add expiry date by you own.
 
 ```
+
+Note: You should only create a service account token `Secret` obj if you can't use the `TokenRequest` API to obtain a token.
