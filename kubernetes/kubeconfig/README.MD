@@ -265,7 +265,7 @@ kubectl config set-credentials user_name --client-certificate .crt_path --client
 kubectl config set-context context-name --cluster cluster-name --user user-name-which-we-want-to-map-with
 ```
 <i>
- --embed-certs=true: When set to true, the content of the certificate and key files will be embedded directly into the kubeconfig file, instead of just linking to the file paths.
+ <b>`--embed-certs=true`</b>: When set to true, the content of the certificate and key files will be embedded directly into the kubeconfig file, instead of just linking to the file paths.
 </i>
 
 all are same .
