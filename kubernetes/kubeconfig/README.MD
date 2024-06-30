@@ -257,7 +257,7 @@ now create user and context as like before
 
 #### create user
 ```sh
-kubectl config set-credentials user_name --client-certificate .crt_path --client-key .key_path --embed-certs true
+kubectl config set-credentials user_name --client-certificate .crt_path --client-key .key_path --embed-certs=true
 ```
 <i>
  <b>`--embed-certs=true`</b>: When set to true, the content of the certificate and key files will be embedded directly into the kubeconfig file, instead of just linking to the file paths.
