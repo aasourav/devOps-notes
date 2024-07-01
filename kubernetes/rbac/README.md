@@ -177,3 +177,11 @@ there are something that are not resources ex: logs `k logs`
     # for this logs add pods/log (here pod/logs is just example)
         --resources pods/log
 ```
+
+some example:
+    0. `. API Server: /apis/, /api/, /version
+    2. Health Check: /healthz, /healthz/ready, /healthz/liveness
+    3. Metrics: /metrics, /metrics/{resource}
+    4. Logs: /logs (if implemented by a custom controller or application)
+    5. Proxy: /proxy/{resource}, /proxy/namespaces/{namespace}/{resource}
+    6. Version: /version
