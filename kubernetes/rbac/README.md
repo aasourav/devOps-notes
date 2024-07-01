@@ -171,7 +171,7 @@ Have to learn more about it.
 ## now one more thing
 
 there are something that are not resources ex: logs `k logs`
-`yaml
-    # for this logs add pod/log (here pod/logs is just example)
-        --resources pod/log
-`
+```yaml
+    # for this logs add pods/log (here pod/logs is just example)
+        --resources pods/log
+```
