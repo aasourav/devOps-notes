@@ -62,7 +62,8 @@ Note: we cannot edit service account on pod. we must have to recreate the pod. b
 If you don't wanna auto mount service account on you pod you can add
 
 ```yaml
-autoMountServiceAccountToken: false
+# on pod spec
+autoMountServiceAccountToken: false # will not mount
 ```
 
 ## In k8s version 1.24 ->
