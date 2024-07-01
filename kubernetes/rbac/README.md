@@ -134,6 +134,38 @@ k create clusterrolebinding cluster_role_binding_name --clusterrole clusterrole_
 
 ## Aggregated cluster role -- comming soon..
 
+If you want to create cluster role out of n number of cluster role. means let's say you create a Clusuter role by manisfest.
+```yaml
+    apiVersion: rback.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+        name: monitoring
+    aggregationRule: # we will create a aggregate rule. agg rule is specify label
+        clusterRoleSelectors:
+            rbac.example.com/aggregate-to-monitoring: "true" # that is label. any cluster role with this label (next text (2))
+        rules: [] #(2) those cluster role updated automatically here.
+```
+
+### cluster role with label `rbac.example.com/aggregate-to-monitoring: "true"`
+```yaml
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: CLusterRole
+    metadata:
+        labels: 
+            rbac.example.com/aggregate-to-monitoring: "true"
+        name: test
+    rules:
+    - apiGroups:
+      - ""
+      resources:
+      - services
+      verbs:
+      - list
+      - watch
+```
+
+If we apply then , aggregated roles: [] will be updated
+
 Have to learn more about it.
 
 ## now one more thing
