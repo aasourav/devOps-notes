@@ -159,6 +159,8 @@ If you want to create cluster role out of n number of cluster role. means let's 
       - ""
       resources:
       - services
+      - pods
+      - pods/log
       verbs:
       - list
       - watch
