@@ -82,32 +82,32 @@ but a case arise there are n number of namespace. what we do then?
 ```yaml
 #Cluster role
     apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: example-clusterrole
-rules:
-- apiGroups: [""]
-  resources: ["pods","pods/logs"]
-  verbs: ["get", "watch", "list"]
-- apiGroups: ["apps"]
-  resources: ["deployments"]
-  verbs: ["get", "watch", "list"]
+    kind: ClusterRole
+    metadata:
+    name: example-clusterrole
+    rules:
+    - apiGroups: [""]
+    resources: ["pods","pods/logs"]
+    verbs: ["get", "watch", "list"]
+    - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "watch", "list"]
 
 ```
 
 ```yaml
     apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: example-clusterrolebinding
-subjects:
-- kind: User
-  name: "example-user" # Name is case sensitive
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ClusterRole
-  name: example-clusterrole
-  apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRoleBinding
+    metadata:
+    name: example-clusterrolebinding
+    subjects:
+    - kind: User
+    name: "example-user" # Name is case sensitive
+    apiGroup: rbac.authorization.k8s.io
+    roleRef:
+    kind: ClusterRole
+    name: example-clusterrole
+    apiGroup: rbac.authorization.k8s.io
 
 ```
 
