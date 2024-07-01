@@ -24,6 +24,23 @@ k get clusterrole
 k get role
 
 k auth can-i delete pod -n kube-system --as system:serviceaccount:default:default
+#output -> yes / no
+```
+
+```yaml
+    apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: example-role
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods","pods/logs"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "watch", "list"]
+
 ```
 
 to allow a service account / user ->
@@ -33,6 +50,22 @@ k create role role_name -n namespace_name --verb delete,list,update -- resource 
 ```
 
 now we have to bind the role for SA or user
+
+```yaml
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+    name: example-rolebinding
+    namespace: default
+    subjects:
+    - kind: User
+    name: "example-user" # Name is case sensitive
+    apiGroup: rbac.authorization.k8s.io
+    roleRef:
+    kind: Role
+    name: example-role
+    apiGroup: rbac.authorization.k8s.io
+```
 
 ```yaml
 #for service account
@@ -45,6 +78,38 @@ k create rolebinding rolebinding_name -n namespace_name --role role_name --user 
 if want to user can delete pod from multiple namespace we have to create role and role binding for them individually for user/sa.
 
 but a case arise there are n number of namespace. what we do then?
+
+```yaml
+#Cluster role
+    apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: example-clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["pods","pods/logs"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "watch", "list"]
+
+```
+
+```yaml
+    apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: example-clusterrolebinding
+subjects:
+- kind: User
+  name: "example-user" # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: example-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+
+```
 
 ```yaml
 # creating cluster role , and binding that cluster role to a user using role binding.
