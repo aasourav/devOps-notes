@@ -1,2 +1,2 @@
-- KASM
-- KVM
+- [KASM](https://kasmweb.com/)
+- [KVM](https://linux-kvm.org/page/Main_Page)
