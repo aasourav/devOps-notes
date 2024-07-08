@@ -8,103 +8,144 @@ import (
 	"github.com/fatih/color"
 )
 
-const NumberOfPizzas = 10
+// variables
+var seatingCapacity = 10
+var arrivalRate = 100
+var cutDuration = 1000 * time.Millisecond
+var timeOpen = 10 * time.Second
 
-var pizzasMade , pizzasFailed, total int
-
-type PizzaOrder struct{
-	pizzaNumber int
-	message string
-	success bool
+type BarberShop struct {
+	ShopCapacity    int
+	HairCutDuration time.Duration
+	NumberOfBarbers int
+	BarbersDoneChan chan bool
+	ClientsChan     chan string
+	Open            bool
 }
 
-type Producer struct{
-	// channel is more powerful than mutex and wait groups. bcz they allow one go routine to exchange data with another go routine. they can talk to each other.
-	data chan PizzaOrder
-	quit chan chan error // bcz `func (p *Producer) Close() error {`
-}
+func (shop *BarberShop) addBarber(barber string) {
+	shop.NumberOfBarbers++
+	go func() {
+		isSleeping := false
+		color.Yellow("%s goes to the waiting room to check for clients. ", barber)
+		for {
+			// if there are no clients, the barber goes to sleep
+			if len(shop.ClientsChan) == 0 {
+				color.Yellow("There is nothing to do, so %s takes a nap.", barber)
+				isSleeping = true
+			}
+			client, shopOpen := <-shop.ClientsChan
 
-func (p *Producer) Close() error {
-	ch := make(chan error)
-	p.quit <- ch
-	return  <- ch
-}
-
-func makePizza(pizzaNumber int)*PizzaOrder{
-	pizzaNumber++
-	if pizzaNumber <= NumberOfPizzas{
-		delay := rand.Intn(5) + 1
-		fmt.Println("Received an order number: ",pizzaNumber)
-
-		rnd := rand.Intn(12) + 1
-		msg := ""
-		success := false
-
-		if rnd < 5 {
-			pizzasFailed++
-		}else{
-			pizzasMade++
+			if shopOpen {
+				if isSleeping {
+					color.Yellow("%s wakes %s up.", client, barber)
+					isSleeping = false
+				}
+				// cut hair
+				shop.cutHair(barber, client)
+			} else {
+				// shop is closed, so send the barber home and close the goroutine
+				shop.sendBarberHome(barber)
+				return
+			}
 		}
-		total++
-		fmt.Printf("Making pizza %d. It will take %d seconds..\n",pizzaNumber,delay)
-		time.Sleep(time.Duration(delay) * time.Second)
+	}()
+}
 
-		if rnd <= 2{
-			msg = fmt.Sprintf("We run out of ingredients for pizza: %d\n",pizzaNumber)
-		}else if rnd <=4 {
-			msg = fmt.Sprintf("the cook quite after making pizza: %d\n",pizzaNumber)
-		}else{
-			msg = fmt.Sprintf("Pizza order %d is ready\n",pizzaNumber)
-		}
-		p := PizzaOrder{
-			pizzaNumber: pizzaNumber,
-			message: msg,
-			success: success,
-		}
-		return &p
+func (shop *BarberShop) cutHair(barber, client string) {
+	color.Green("%s is cutting %s's hair.", barber, client)
+	time.Sleep(shop.HairCutDuration)
+	color.Green("%s is finished cutting %s's hair.", barber, client)
+}
+
+func (shop *BarberShop) sendBarberHome(barber string) {
+	color.Cyan("%s is going home", barber)
+	shop.BarbersDoneChan <- true
+}
+
+func (shop *BarberShop) closeSHopForDay() {
+	color.Cyan("Closing shop for the day.")
+	close(shop.ClientsChan)
+	shop.Open = false
+
+	// wait for all the barbers done
+	for a := 1; a <= shop.NumberOfBarbers; a++ {
+		<-shop.BarbersDoneChan
 	}
+	close(shop.BarbersDoneChan)
+	color.Green("---- The barber shop is now closed for the day ----")
+}
 
-	return &PizzaOrder{
-		pizzaNumber: pizzaNumber,
+func (shop *BarberShop) addClient(client string) {
+	//print out message
+
+	color.Green("%s client arrives!", client)
+	if shop.Open {
+		select {
+		case shop.ClientsChan <- client:
+			color.Yellow("%s takes a seat in the waiting room.", client)
+		default:
+			color.Red("The waiting room is full, so %s client leaves.", client)
+		}
+	} else {
+		color.Red("The shop is already closed %s client leaves.", client)
 	}
 }
 
-
-func pizzaria(pizzaMaker *Producer){
-	// keep track of which pizz we are making
-	i := 0
-	// run forever or until we receive a quite notification
-
-
-	// try to make pizzas
-	for{
-		currentPizza := makePizza(i)
-		// try to make a pizza
-		// decision
-		
-	}
-}
-
-func main(){
-	// seed the random number generator
+func main() {
+	// seed our random number generator
 	rand.Seed(time.Now().UnixNano())
 
-	// print out a message
-	color.Cyan("The Pizzaria is open for business.")
-	color.Cyan("------------------------------------")
+	// print welcome message
+	color.Yellow("The sleeping barber problem")
+	color.Yellow("---------------------------")
 
-	// create a producer
-	pizzaJob := &Producer{
-		data: make(chan PizzaOrder),
-		quit: make(chan chan error),
+	// create channels if we need any
+	clientChan := make(chan string, seatingCapacity)
+	doneChannel := make(chan bool)
+
+	// create the barbershop
+	shop := BarberShop{
+		ShopCapacity:    seatingCapacity,
+		HairCutDuration: cutDuration,
+		NumberOfBarbers: 0,
+		ClientsChan:     clientChan,
+		BarbersDoneChan: doneChannel,
+		Open:            true,
 	}
 
-	// run the producer in the background (own go routine)
-	go pizzaria(pizzaJob)
-	//once you create a channel when you finish with it the golder rule is
-	// you must close it
+	color.Green("The shop is open for the day.")
 
-	// create and run consumer
+	// add barbers
+	shop.addBarber("Frank")
+	// start the barbershop
+	shopClosing := make(chan bool)
+	closed := make(chan bool)
 
-	// print out the ending message
+	go func() {
+		<-time.After(timeOpen)
+		shopClosing <- true
+		shop.closeSHopForDay()
+		closed <- true
+	}()
+
+	// add clients
+	i := 1
+	go func() {
+		for {
+			// get a random number with avg arrival rate
+			randomMilSec := rand.Int() % (2 * arrivalRate)
+			select {
+			case <-shopClosing:
+				return
+			case <-time.After(time.Microsecond * time.Duration(randomMilSec)):
+				shop.addClient(fmt.Sprintf("Cleint #%d", i))
+				i++
+			}
+		}
+	}()
+
+	// block until the bargershop is closed
+	<-closed
+	time.Sleep(time.Second * 5)
 }
