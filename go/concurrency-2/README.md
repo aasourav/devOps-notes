@@ -1,4 +1,3 @@
-
 # Concurrency
 
 Go routine is user-space threads.
@@ -11,36 +10,36 @@ concurrency enables parallelism
 In this way, multiple processes are sharing CPU
 
 # Parallelism
+
 Parallelism is the ability to execute multiple computations simultaneously.
 
 ![parallelism](./images/image1.png)
 
 Concurrency enables parallelism (Need to know details about it.)
 
-
 ### Concurrency in Summary.
- Why we need to think about Concurrency?
- - In order to run faster, application needs to be divided into multiple independent units and run them in parallel.
 
- 
- ## why ther awas a need to build concurrency primitives in Go?
+Why we need to think about Concurrency?
+
+- In order to run faster, application needs to be divided into multiple independent units and run them in parallel.
+
+## why ther awas a need to build concurrency primitives in Go?
 
 OS => the job of os is to give fair chance for all process access to CPU, memory and other resources.
 Process => An instance of a running program is called a process. Process provides environment for program to execute.
-When the program executade the os creates a process and allocates memmory in the virtual address space. 
-the virtual address space will contain Code segments which is compiled machine code . 
+When the program executade the os creates a process and allocates memmory in the virtual address space.
+the virtual address space will contain Code segments which is compiled machine code .
 There is a Data region which contains global variable.  
 Heap Segment used for dynamic memory allocation. stack is used for local varibles of function.
 
 ![environment for programe to execute](./images/image2.png)
 
-
 Threads => are smalles unit of execution that CPU accepts. each process has atleast 1 thread. that is main thread. a process can have multiple threads. threads share same address space. each thread has it's own stack. thread can run independent of each other. THe OS scheduler makes scheduling decisions at thread level, not process level. Threads can run concurrently, with each thread taking turn on the individual core, or they can run in parallel with each thread running at the same time on different cores.
 
 ![Thread overview](./images/image3.png)
 
-
 ### Thread States:
+
 When the process is created, the main thread is put into the ready queue.
 
 It is in the runnable state.
@@ -59,30 +58,26 @@ Once it is complete, it is placed back onto the ready queue.
 
 ![Thread states ](./images/image4.png)
 
-
-
 ### Can we divide our application into Processes and Threads and achive concurrency? => Yes , but there are limitation.
 
 Wy limitations?
+
 - Context switching.
 
-Context switches are considered expensive. CPU has to spend  time copying the context of the current executing thread into memory and restoring the context of the next chosen thread And it does take thousands of CPU instructions to do context switching, and it is a wasted time as CPU is not running your application, but doing context switching.
+Context switches are considered expensive. CPU has to spend time copying the context of the current executing thread into memory and restoring the context of the next chosen thread And it does take thousands of CPU instructions to do context switching, and it is a wasted time as CPU is not running your application, but doing context switching.
 
 ![alt text](./images/image5.png)
 
 In this diagram, you might see the context switching between the threads of the same process is relatively. cheap compared to the context switching between the threads of different processes.
 
-
 can we scale the number of threads per process?
 not much actually. If we scale the number of threads in a process too high, then we hit C10k problem.
 
-
-what is c10k problem: 
+what is c10k problem:
 the scheduler allocates a time slice for each process to execute on CPU core.
 
 This CPU time slice is divided equally among threds.
 ![c10k](./images/image6.png)
-
 
 ![alt text](./images/image7.png)
 
@@ -110,6 +105,7 @@ thread will have to wait for 20 seconds for its next execution.
 So the application is going to become less responsive.
 
 ### So other issue is the stack size, the operating system gives a fixed stack size for each thread,
+
 ![stack size issue](image9.png)
 
 the actual size depends on the hardware.
@@ -138,9 +134,8 @@ we have.
 
 and C10k problem, as we scale the number of threads the scheduler cycle is going to increase and the application
 
-
-
 ### WHy Concurrency is hard?
+
 In this module, we will see why concurrency is hard and how sharing of memory between the threads can
 
 create a lot of complexity.
@@ -277,7 +272,6 @@ waiting state.
 
 So as you see, this is a circular wait, which leads to deadlock and the application will just hang.
 
-
 So we have come to the end of this module, let us summarize, so we saw why concurrency is hard.
 
 Sharing of memory between the threads creates complexity.
@@ -285,8 +279,6 @@ Sharing of memory between the threads creates complexity.
 and concurrent access to the shared memory can lead to race conditions and outcome can be un-deterministic.
 
 Memory access synchronization tools actually reduces the parallelism and comes with its own limitations.
-
-
 
 ### GoRoutines
 
@@ -323,9 +315,6 @@ If the computation is taking more time, we can add more processes of the same ty
 faster.
 
 So what tools Go provides for concurrency?
-
-
-
 
 Goroutines, goroutines are concurrently executing functions, channels, channels are used to communicate
 
@@ -393,10 +382,9 @@ Goroutines have a very less state to be stored.
 
 This enables us to create hundreds of thousands of goroutines in the same order space.
 
-
 ## Coding exercise link:
-git clone https://github.com/andcloudio/go-concurrency-exercises.git
 
+git clone https://github.com/andcloudio/go-concurrency-exercises.git
 
 Now see the exercise from the git:
 
@@ -503,11 +491,9 @@ Therefore, we call the add method outside the goroutine enclosure to make sure t
 
 before wait.
 
-
 #### Exercise WaitGroup.
+
 ### 01-exercise-solution -> goroutines -> 03-join
-
-
 
 ## GoRoutines and Clousers
 
@@ -526,7 +512,6 @@ function has returned.
 ![alt text](image-14.png)
 
 ### 01-exercise-solution -> goroutines -> 05-closure
-
 
 Explain This code:
 
@@ -563,7 +548,6 @@ being held by the goroutine,
 so it pins it, it moves it from the stack to heap, so that goroutine still has the access to the variable
 
 even after the enclosing function returns
-
 
 ### 01-exercise-solution -> goroutines -> 06-closure
 
@@ -604,8 +588,6 @@ So in this exercise, what we learnt was goroutines operate on the current value 
 the time of their execution.
 
 If we want the goroutines to operate on a specific value, then we need to pass that as an input to the goroutine.
-
-
 
 ## Deep Dive Go Scheduler.
 
@@ -711,7 +693,6 @@ When new goroutines are created, they're added to the end of the global run queu
 
 Let's see a context switch.
 
-
 ![alt text](image-17.png)
 
 Goroutine G1 has reached a scheduling point,
@@ -804,7 +785,7 @@ from the thread pool cache or it creates a new OS thread if a thread is not avai
 
 cache.
 
- ![alt text](image-21.png)
+![alt text](image-21.png)
 
 Then Go scheduler will detach the logical processor P from the OS thread M1, and moves it to the new OS
 
@@ -847,7 +828,6 @@ We are done for this module, in the next module, we will see context switching d
 
 system call.
 
-
 ## Context switching due to Asynchronous calls
 
 In this module, we will look into context switching due to a asynchronous system calls, like the network
@@ -884,8 +864,6 @@ So how does Go handle this scenario?
 
 Let us see.
 
-
-
 Go uses <b>netpoller.</b>
 
 There is an abstraction built in syscall package.
@@ -916,7 +894,7 @@ Let us look into an example.
 
 Here G1 is executing on the OS thread M1.
 
-  ![alt text](image-24.png)
+![alt text](image-24.png)
 
 G1 opens an network connection with net.Dial
 
@@ -970,7 +948,6 @@ In this way, the application complexity of managing an asynchrous system call is
 
 Go runtime, which manages it in an efficient manner.
 
-
 ## Work Stealing.
 
 In this module, we will look into work stealing concept in Go scheduler.
@@ -991,7 +968,7 @@ We see that P1 has no more goroutines to execute,
 
 ![alt text](image-28.png)
 
- but there are goroutines in runnable state in
+but there are goroutines in runnable state in
 
 the global run queue and local run queue of P2.
 
@@ -1019,7 +996,6 @@ Now we are able to better utilize the CPU cores and the work is fairly distribut
 
 logical processors.
 
-
 ![alt text](image-31.png)
 
 What happens when P2 finishes executing all its goroutines?
@@ -1044,5 +1020,238 @@ So, work stealing helps to balance goroutines across the logical processor and w
 
 distributed and gets done more efficiently.
 
-
 ## Channels
+
+In this module, we'll be looking into Channels.
+
+Here we have a code snippet, where goroutine is making a computation, and we want to get the result
+
+of that computation in our main routine without having to share the memory.
+
+So how can we do that?
+
+This is where channels comes into picture.
+
+channels are used to communicate data between the goroutines.
+
+channels can also help in synchronizing the execution of the goroutines, one goroutine can let know
+
+another goroutine, in what stage of the computation they are in and synchronize their execution.
+
+Channels are typed, they are used to send and receive values of a particular type.
+
+They are thread safe, so the channel variables can be used to send and receive values concurrently
+
+by multiple goroutines.
+
+It is very easy to create channels and we declare a variable with chan keyword, followed by the type,
+
+```go
+var ch chan T
+```
+
+the default value of the channel is nil.
+
+So we need to use built-in function make, to allocate memory for the channel.
+
+```go
+var ch chan T
+ch = make(chan T)
+
+//or
+ch := make(chan T)
+```
+
+And the make function returns a reference for the allocated memory.
+
+Or we can use a short variable declaration with make built-in function, which declares and allocates memory
+
+for the channel in one statement.
+
+Pointer operators can be used to send and receive values from the channel, and the arrow direction indicates
+
+```go
+  // <-
+  // send
+  ch <-v
+  // receive
+  v =<-ch
+
+```
+
+the direction of the data flow.
+
+For send,
+
+the arrow direction indicates that the value is being written to the channel.
+
+And for receive, the arrow direction indicates that the value is being received from the channel and copied
+
+to the variable.
+
+channels are blocking, the sending goroutine is going to block until there is a corresponding receiver goroutine
+
+![alt text](image-34.png)
+
+ready to receive the value.
+
+Similarly, the receiver goroutine is going to block until there is a corresponding sender goroutine, sending
+
+the value.
+
+And it is the responsibility of the channel to make the goroutine, runnable again once it is ready to receive
+
+or send value.
+
+Closing of the channel is very useful for the sender goroutine to indicate to the receiver goroutine,
+
+that the sender has no more values to send on the channel and the receiver can unblock and proceed with
+
+its other computation.
+
+Receive returns two values, the first one is a received value from the channel.
+
+```go
+ //receive returns two values
+ value, ok = <-chan
+
+```
+
+The second is a boolean value, which indicates whether the value that is being read from the channel
+
+is a value that is generated by a write or a default value that is being generated by a close of the
+
+channel.
+
+So the second return value will be true if the value is generated by write or it's going to be false,
+
+If it is generated by close, and this is very useful to determine whether the value is from write or whether
+
+the values from close.
+
+## Exercise Channel -> 01-exercise/02-channel/01-channel
+
+## Range Over the channel
+
+![alt text](image-35.png)
+
+Range over the channel, the receiver goroutine can use range to receive a sequence of values from the
+
+channel. range over the channel will iterate over the values received from a channel.
+
+The loop automatically breaks when the channel is closed.
+
+So once the sender goroutine has sent all of its values, it will close the channel and the receiver
+
+goroutine will break out of the range loop.
+
+The range does not return the second boolean value.
+
+Normally the receive returns the second boolean value, but range just returns value, as on close,
+
+the range will automatically break out of the loop.
+
+Unbuffered channels, the channels that we have been creating till now are unbuffered channels.
+
+![alt text](image-36.png)
+
+There is no buffer between the sender goroutine and the receiver goroutine.
+
+Since there is no buffer, the sender goroutine will block until there is a receiver, to receive the
+
+value, and the receiver goroutine will block until there is a sender, sending the value.
+
+OK.
+
+In buffered channels, there is a buffer between the sender and the receiver goroutine, and we can specify
+
+![alt text](image-37.png)
+
+the capacity, that is the buffer size, which indicates the number of elements that can be sent without
+
+the receiver being ready to receive the values.
+
+The sender can keep sending the values without blocking, till the buffer gets full, when the buffer gets full, the sender
+
+will block.
+
+The receiver can keep receiving the values without blocking till the buffer gets empty, when the buffer
+
+gets empty, the receiver will block.
+
+The buffered channels are in-memory FIFO queues, so the element that is sent first, will be the element
+
+that will be read first.
+
+### Exercise 01-exercise/02-channel/02-channel
+
+### Exercise 01-exercise/02-channel/03-channel
+
+### CHannel DIrection
+
+When using channels as functional parameters, you can specify if the channel is meant only to send or
+
+only to receive values.
+
+And this specificity will help us to increase the type safety of the programs, in the below example, in
+
+is a receive only channel, note the syntax,
+![alt text](image-38.png)
+
+it's a pointer operator followed by the chan keyword, and out is a send only channel,
+
+and the syntax is, chan keyword followed by the pointer operator.
+
+In this example, the pong function can use in, only to receive values.
+
+It cannot use this channel to send values.
+
+If it tries to send values on this channel, the compiler is going to report an error.
+
+OK, so in this way, we can control what operations that function can do with the channels that are
+
+passed as parameters.
+
+### Channel direction exercise. 01-exercise/02-channel/04-channel
+
+## Channel ownership
+
+![alt text](image-39.png)
+
+Now we will look into the things that we should be aware when working with channels, and this will
+
+help us in troubleshooting.
+
+Default values, when a channel is declared, its default value is nil.
+
+So we should allocate memory by using the built-in function make.
+
+If that does not happen and we try to send or receive on that channel, then it's going to block forever.
+
+![alt text](image-40.png)
+
+Similarly, closing on the new channel will panic, so we should always make sure that the channels
+
+![alt text](image-41.png)
+
+are initialized with the built-in function make.
+
+How we use the channels is important to avoid deadlocks and panics.
+
+We can follow some of the Go idioms.
+
+The best practice is that the goroutine that creates the channel will be the goroutine that will write to the
+
+channel and is also responsible for closing the channel.
+
+The goroutine that creates writes and closes the channel is the owner of the channel and the goroutine that
+
+utilizes the channel will only read from the channel.
+
+So establishing the ownership of the channel will help us to avoid deadlocks and panics, and it will
+
+help in avoiding scenarios like deadlocking by writing to nil channel, closing a nil channel, writing
+
+to a closed and closing channel more than once, which can all lead to panic.
+
+### Exercise Channel ownership 01-exercise/02-channel/04-channel
