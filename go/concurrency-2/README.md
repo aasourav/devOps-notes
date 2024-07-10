@@ -316,9 +316,9 @@ faster.
 
 So what tools Go provides for concurrency?
 
-- Goroutines - goroutines are concurrently executing functions, 
+- Goroutines - goroutines are concurrently executing functions,
 - Channels - channels are used to communicate data between the goroutines.
-- Select - Select is used to multiplex the channels, 
+- Select - Select is used to multiplex the channels,
 - Sync package - Sync package provides classical synchronization tools like the mutex, conditional variables and others.
 
 Goroutines are user space threads, managed by Go runtime, Go runtime is part of the executable, it is built into the executable of the application.Goroutines are extremely lightweight, goroutines starts with 2KB of stack, which can grow and shrink as required.
@@ -337,9 +337,7 @@ Many goroutines can execute in the context of the single OS thread. The operatin
 
 ![alt text](image-11.png)
 
-
 For the operating system, nothing has changed, it is still scheduling the threads, as it was. Go runtime manages the scheduling of the goroutines on the OS threads.
-
 
 ### Summarize GoRoutines
 
@@ -361,11 +359,12 @@ git clone https://github.com/andcloudio/go-concurrency-exercises.git
 Now see the exercise from the git:
 
 ### Solution can be found in : go-concurrency-exercise/01-exercise-solution
+
 ### go-concurrency-exercise/01-exercise/01-goroutines/01-hello
 
 ### go-concurrency-exercise/01-exercise/01-goroutines/02-client-server/
-go routines in the server to handle multiple conrcurrent client connections
 
+go routines in the server to handle multiple conrcurrent client connections
 
 ## WaitGroups (sunc.WaitGroup)
 
@@ -405,7 +404,7 @@ So it drops into the if block.
 
 But before executing the print statement, goroutine gets scheduled and increment the value of the data.
 
-And then main routine, execute the print statement. Then the output will be value is one. 
+And then main routine, execute the print statement. Then the output will be value is one.
 
 Can we bring some determinism into our program?
 
@@ -444,7 +443,6 @@ Therefore, we call the add method outside the goroutine enclosure to make sure t
 #### Exercise WaitGroup.
 
 ### go-concurrency-exercise/01-exercise/01-goroutines/03-join
-
 
 ## GoRoutines and Clousers
 
@@ -579,7 +577,6 @@ The context switching between the goroutines is managed by the logical processor
 There is a one to one mapping between OS thread and the logical processor, if there are two cores and we have set GOMAXPROC environment variable to 2, then go runtime, creates another OS thread and logical processor, and associates the OS thread with the logical processor, and goroutines can be scheduled on the second OS thread.
 
 ![alt text](image-19.png)
-
 
 Let us summarize.
 
@@ -773,31 +770,18 @@ If the logical processor runs out of goroutines in its local run queue, then it 
 
 So, work stealing helps to balance goroutines across the logical processor and work gets better distributed and gets done more efficiently.
 
-
-# to be continue
 ## Channels
 
-In this module, we'll be looking into Channels.
+![alt text](image-63.png)
 
-Here we have a code snippet, where goroutine is making a computation, and we want to get the result
-
-of that computation in our main routine without having to share the memory.
+Here we have a code snippet, where goroutine is making a computation, and we want to get the result of that computation in our main routine without having to share the memory.
 
 So how can we do that?
 
-This is where channels comes into picture.
-
-channels are used to communicate data between the goroutines.
-
-channels can also help in synchronizing the execution of the goroutines, one goroutine can let know
-
-another goroutine, in what stage of the computation they are in and synchronize their execution.
+This is where channels comes into picture. channels are used to communicate data between the goroutines. channels can also help in synchronizing the execution of the goroutines, one goroutine can let know another goroutine, in what stage of the computation they are in and synchronize their execution.
 
 Channels are typed, they are used to send and receive values of a particular type.
-
-They are thread safe, so the channel variables can be used to send and receive values concurrently
-
-by multiple goroutines.
+They are thread safe, so the channel variables can be used to send and receive values concurrently by multiple goroutines.
 
 It is very easy to create channels and we declare a variable with chan keyword, followed by the type,
 
@@ -806,7 +790,6 @@ var ch chan T
 ```
 
 the default value of the channel is nil.
-
 So we need to use built-in function make, to allocate memory for the channel.
 
 ```go
@@ -819,9 +802,7 @@ ch := make(chan T)
 
 And the make function returns a reference for the allocated memory.
 
-Or we can use a short variable declaration with make built-in function, which declares and allocates memory
-
-for the channel in one statement.
+Or we can use a short variable declaration with make built-in function, which declares and allocates memory for the channel in one statement.
 
 Pointer operators can be used to send and receive values from the channel, and the arrow direction indicates
 
@@ -830,39 +811,29 @@ Pointer operators can be used to send and receive values from the channel, and t
   // send
   ch <-v
   // receive
-  v =<-ch
+  v = <-ch
 
 ```
 
 the direction of the data flow.
 
-For send,
+For send, the arrow direction indicates that the value is being written to the channel.
 
-the arrow direction indicates that the value is being written to the channel.
+And for receive, the arrow direction indicates that the value is being received from the channel and copied to the variable.
 
-And for receive, the arrow direction indicates that the value is being received from the channel and copied
-
-to the variable.
-
-channels are blocking, the sending goroutine is going to block until there is a corresponding receiver goroutine
+channels are blocking, the sending goroutine is going to block until there is a corresponding receiver goroutine ready to receive the value.
 
 ![alt text](image-34.png)
 
-ready to receive the value.
+Similarly, the receiver goroutine is going to block until there is a corresponding sender goroutine, sending the value.
 
-Similarly, the receiver goroutine is going to block until there is a corresponding sender goroutine, sending
+And it is the responsibility of the channel to make the goroutine, runnable again once it is ready to receive or send value.
 
-the value.
+Closing of the channel is very useful for the sender goroutine to indicate to the receiver goroutine, that the sender has no more values to send on the channel and the receiver can unblock and proceed with its other computation.
 
-And it is the responsibility of the channel to make the goroutine, runnable again once it is ready to receive
-
-or send value.
-
-Closing of the channel is very useful for the sender goroutine to indicate to the receiver goroutine,
-
-that the sender has no more values to send on the channel and the receiver can unblock and proceed with
-
-its other computation.
+```go
+ close(c)
+```
 
 Receive returns two values, the first one is a received value from the channel.
 
@@ -872,17 +843,9 @@ Receive returns two values, the first one is a received value from the channel.
 
 ```
 
-The second is a boolean value, which indicates whether the value that is being read from the channel
+The second is a boolean value, which indicates whether the value that is being read from the channel is a value that is generated by a write or a default value that is being generated by a close of the channel.
 
-is a value that is generated by a write or a default value that is being generated by a close of the
-
-channel.
-
-So the second return value will be true if the value is generated by write or it's going to be false,
-
-If it is generated by close, and this is very useful to determine whether the value is from write or whether
-
-the values from close.
+So the second return value will be true if the value is generated by write or it's going to be false, If it is generated by close, and this is very useful to determine whether the value is from write or whether the values from close.
 
 ## Exercise Channel -> 01-exercise/02-channel/01-channel
 
@@ -890,82 +853,44 @@ the values from close.
 
 ![alt text](image-35.png)
 
-Range over the channel, the receiver goroutine can use range to receive a sequence of values from the
+Range over the channel, the receiver goroutine can use range to receive a sequence of values from the channel. range over the channel will iterate over the values received from a channel.
 
-channel. range over the channel will iterate over the values received from a channel.
+The loop automatically breaks when the channel is closed. So once the sender goroutine has sent all of its values, it will close the channel and the receiver goroutine will break out of the range loop. The range does not return the second boolean value.
 
-The loop automatically breaks when the channel is closed.
+Normally the receive returns the second boolean value, but range just returns value, as on close, the range will automatically break out of the loop.
 
-So once the sender goroutine has sent all of its values, it will close the channel and the receiver
-
-goroutine will break out of the range loop.
-
-The range does not return the second boolean value.
-
-Normally the receive returns the second boolean value, but range just returns value, as on close,
-
-the range will automatically break out of the loop.
-
-Unbuffered channels, the channels that we have been creating till now are unbuffered channels.
+Unbuffered channels:
+the channels that we have been creating till now are unbuffered channels.
 
 ![alt text](image-36.png)
 
 There is no buffer between the sender goroutine and the receiver goroutine.
 
-Since there is no buffer, the sender goroutine will block until there is a receiver, to receive the
+Since there is no buffer, the sender goroutine will block until there is a receiver, to receive the value, and the receiver goroutine will block until there is a sender, sending the value.
 
-value, and the receiver goroutine will block until there is a sender, sending the value.
-
-OK.
-
-In buffered channels, there is a buffer between the sender and the receiver goroutine, and we can specify
+In buffered channels, there is a buffer between the sender and the receiver goroutine, and we can specify the capacity, that is the buffer size, which indicates the number of elements that can be sent without the receiver being ready to receive the values.
 
 ![alt text](image-37.png)
 
-the capacity, that is the buffer size, which indicates the number of elements that can be sent without
+The sender can keep sending the values without blocking, till the buffer gets full, when the buffer gets full, the sender will block.
 
-the receiver being ready to receive the values.
+The receiver can keep receiving the values without blocking till the buffer gets empty, when the buffer gets empty, the receiver will block.
 
-The sender can keep sending the values without blocking, till the buffer gets full, when the buffer gets full, the sender
-
-will block.
-
-The receiver can keep receiving the values without blocking till the buffer gets empty, when the buffer
-
-gets empty, the receiver will block.
-
-The buffered channels are in-memory FIFO queues, so the element that is sent first, will be the element
-
-that will be read first.
+The buffered channels are in-memory FIFO queues, so the element that is sent first, will be the element that will be read first.
 
 ### Exercise 01-exercise/02-channel/02-channel
 
 ### Exercise 01-exercise/02-channel/03-channel
 
-### CHannel DIrection
+### Channel Direction
 
-When using channels as functional parameters, you can specify if the channel is meant only to send or
+When using channels as functional parameters, you can specify if the channel is meant only to send or only to receive values.
 
-only to receive values.
+And this specificity will help us to increase the type safety of the programs, in the below example, in is a receive only channel, note the syntax, it's a pointer operator followed by the chan keyword, and out is a send only channel, and the syntax is, chan keyword followed by the pointer operator.
 
-And this specificity will help us to increase the type safety of the programs, in the below example, in
-
-is a receive only channel, note the syntax,
 ![alt text](image-38.png)
 
-it's a pointer operator followed by the chan keyword, and out is a send only channel,
-
-and the syntax is, chan keyword followed by the pointer operator.
-
-In this example, the pong function can use in, only to receive values.
-
-It cannot use this channel to send values.
-
-If it tries to send values on this channel, the compiler is going to report an error.
-
-OK, so in this way, we can control what operations that function can do with the channels that are
-
-passed as parameters.
+In this example, the pong function can use in, only to receive values. It cannot use this channel to send values. If it tries to send values on this channel, the compiler is going to report an error.so in this way, we can control what operations that function can do with the channels that are passed as parameters.
 
 ### Channel direction exercise. 01-exercise/02-channel/04-channel
 
@@ -973,11 +898,10 @@ passed as parameters.
 
 ![alt text](image-39.png)
 
-Now we will look into the things that we should be aware when working with channels, and this will
+Now we will look into the things that we should be aware when working with channels, and this will help us in troubleshooting.
 
-help us in troubleshooting.
-
-Default values, when a channel is declared, its default value is nil.
+Default values -
+when a channel is declared, its default value is nil.
 
 So we should allocate memory by using the built-in function make.
 
@@ -985,104 +909,57 @@ If that does not happen and we try to send or receive on that channel, then it's
 
 ![alt text](image-40.png)
 
-Similarly, closing on the new channel will panic, so we should always make sure that the channels
+Similarly, closing on the new channel will panic, so we should always make sure that the channels are initialized with the built-in function make.
 
 ![alt text](image-41.png)
-
-are initialized with the built-in function make.
 
 How we use the channels is important to avoid deadlocks and panics.
 
 We can follow some of the Go idioms.
 
-The best practice is that the goroutine that creates the channel will be the goroutine that will write to the
+The best practice is that the goroutine that creates the channel will be the goroutine that will write to the channel and is also responsible for closing the channel.
 
-channel and is also responsible for closing the channel.
+The goroutine that creates writes and closes the channel is the owner of the channel and the goroutine that utilizes the channel will only read from the channel.
 
-The goroutine that creates writes and closes the channel is the owner of the channel and the goroutine that
-
-utilizes the channel will only read from the channel.
-
-So establishing the ownership of the channel will help us to avoid deadlocks and panics, and it will
-
-help in avoiding scenarios like deadlocking by writing to nil channel, closing a nil channel, writing
-
-to a closed and closing channel more than once, which can all lead to panic.
+So establishing the ownership of the channel will help us to avoid deadlocks and panics, and it will help in avoiding scenarios like deadlocking by writing to nil channel, closing a nil channel, writing to a closed and closing channel more than once, which can all lead to panic.
 
 ### Exercise Channel ownership 01-exercise/02-channel/04-channel
 
 ## Deep dive channel
 
-In this module and in the next couple of modules, we will try to understand the mechanics behind channels,
+In this module and in the next couple of modules, we will try to understand the mechanics behind channels, how channels work and how to send and receive works underneath.
 
-how channels work and how to send and receive works underneath.
-
-We use built-in function make to create channels.
-
-Here we are creating a buffered channel with three elements.
+We use built-in function make to create channels. Here we are creating a buffered channel with three elements.
 
 ![alt text](image-42.png)
 
-Internally, the channels are represented by the hchan structure.
-
-Now let us look into different fields in the hchan struct.
+Internally, the channels are represented by the `hchan` structure. Now let us look into different fields in the hchan struct.
 
 ![alt text](image-43.png)
 
-It has a mutex lock field, any goroutine doing any channel operation must first acquire the lock on the
+It has a mutex lock field, any goroutine doing any channel operation must first acquire the lock on the channel.buf is a circular ring buffer where the actual data is stored.
 
-channel.
+And this is used only for the buffered channels, data queue size, is the size of the buffer. qcount indicates a total data elements in the queue. sendx and recvx indicates the current index of the buffer from where it can send data, or receive data.
 
-buf is a circular ring buffer where the actual data is stored.
-
-And this is used only for the buffered channels, data queue size, is the size of the buffer.
-
-qcount indicates a total data elements in the queue.
-
-sendx and recvx indicates the current index of the buffer from where it can send data, or receive
-
-data.
-
-recvq and sendq are the waiting queues which are used to store blocked goroutines, the goroutines
-
-that were blocked while they were trying to send data, or while they were trying to receive data from
-
-the channel.
-
-waitq, is the linked list of goroutines, the elements in the linked list is represented by the sudog struct.
+recvq and sendq are the waiting queues which are used to store blocked goroutines, the goroutines that were blocked while they were trying to send data, or while they were trying to receive data from the channel. waitq, is the linked list of goroutines, the elements in the linked list is represented by the sudog struct.
 
 ![alt text](image-44.png)
 
-In the sudog struct, we have the field g, which is a reference to the goroutine, and elem field is
-
-pointer to memory, which contains the value to be sent, or to which the received value will be written
-
-to.
+In the sudog struct, we have the field g, which is a reference to the goroutine, and elem field is pointer to memory, which contains the value to be sent, or to which the received value will be written to.
 
 ![alt text](image-45.png)
 
-When we create a channel with built-in function make, hchan struct is allocated in the heap,
+When we create a channel with built-in function make, hchan struct is allocated in the heap, and make returns a reference to the allocated memory.
 
-and make returns a reference to the allocated memory.
-
-And since ch is a pointer, it can be sent between the functions which can perform, send or receive
-
-operation on the channel.
+And since ch is a pointer, it can be sent between the functions which can perform, send or receive operation on the channel.
 
 ![alt text](image-46.png)
 
-This is a runtime values of hchan struct.
-
-buf is been allocated a ring buffer
-
-and dataq size is set to 3, this value comes from the parameter that has been passed to the make
-
-function.
+This is a runtime values of hchan struct. buf is been allocated a ring buffer and dataq size is set to 3, this value comes from the parameter that has been passed to the make function.
 
 And current qcount is zero, as no data has been enqueued yet.
 
 So in this module, we looked into how channels are represented.
-
 
 ## How send and Receive buffered channel
 
@@ -1090,13 +967,7 @@ Let us now look into what happens when we do send or receive on a buffered chann
 
 ![alt text](image-47.png)
 
-In this code snippet, we have 2 goroutines
-
-goroutine G1 is sending a sequence of values into the channel, and goroutine G2 is receiving the sequence
-
-of values by ranging over the channel.
-
-Now, when we create a channel, this will be the representation.
+In this code snippet, we have 2 goroutines goroutine G1 is sending a sequence of values into the channel, and goroutine G2 is receiving the sequence of values by ranging over the channel. Now, when we create a channel, this will be the representation.
 
 ![alt text](image-48.png)
 
@@ -1104,9 +975,7 @@ There is a circular queue with size three, which is currently empty.
 
 ![alt text](image-49.png)
 
-Let us now consider the scenario when the G1 executes first, G1 is trying to send a value on
-
-the channel, which has empty buffer.
+Let us now consider the scenario when the G1 executes first, G1 is trying to send a value on the channel, which has empty buffer.
 
 First, the goroutine has to acquire the lock on the hchan struct.
 ![alt text](image-50.png)
@@ -1115,54 +984,31 @@ Then it enqueues the element into the circular ring buffer.
 
 ![alt text](image-51.png)
 
-Note that this is a memory copy.
+Note that this is a memory copy. The element is copied into the buffer. Then it increments the value of the sendx to 1. Then it releases the lock on the channel and proceed with its other computation.
 
-The element is copied into the buffer.
-
-OK.
-
-Then it increments the value of the sendx to 1.
-
-Then it releases the lock on the channel and proceed with its other computation.
 ![alt text](image-52.png)
 
-
 Now G2 comes along and tries to receive the value from the channel.
+
 ![alt text](image-53.png)
 
-First, it has to acquire the lock on the hchan struct,
-
-then it dequeues the element from the buffer queue and copies the value to its variable, v.
+First, it has to acquire the lock on the hchan struct, then it dequeues the element from the buffer queue and copies the value to its variable, v.
 
 ![alt text](image-54.png)
 
-And it increments the receive index by one and releases the lock on the channel struct and proceeds
-
-with its other computation.
+And it increments the receive index by 1 and releases the lock on the channel struct and proceeds with its other computation.
 
 ![alt text](image-55.png)
 
 ![alt text](image-56.png)
 
-This is a simple send and receive an a buffered channel.
+This is a simple send and receive an a buffered channel. The points to note are, there is no memory sharing between the goroutines. The goroutines copy elements to and from hchan struct and hchan struct is protected by the mutex lock.
 
-The points to note are, there is no memory sharing between the goroutines.
-
-The goroutines copy elements to and from hchan struct and hchan struct is protected by the
-
-mutex lock.
-
-
-So this is where the Go's tag line comes from.
-
-Do not communicate by sharing memory, but instead share memory by communicating.
+So this is where the Go's tag line comes from. Do not communicate by sharing memory, but instead share memory by communicating.
 
 ![alt text](image-57.png)
 
-So in this module we saw a simple send and receive on a buffered channel and the next module will look into
-
-what happens when the buffer is full.
-
+So in this module we saw a simple send and receive on a buffered channel and the next module will look into what happens when the buffer is full.
 
 ## Buffer full Scenerio
 
@@ -1170,16 +1016,13 @@ Now, let us consider the Buffalo scenario.
 
 ![alt text](image-58.png)
 
-Do you want an accused the values 1 2 3 before goods full and even wants to send value for?
+G1 enquees the values 1 2 3. buffer gets full and G1 wants to send value 4?
 
-Now, since the buffer is full, what will happen, it will get blocked and it needs to wait for the
-
-receiver, right?
+Now, since the buffer is full, what will happen, it will get blocked and it needs to wait for the receiver, right?
 
 Now, how does that happen?
 
-Do you run grid Sisulu district and development will hold reference to the Guertin, do you want?
-
+G1 creates `sudog` `G` and G element will hold the reference to the goroutine G1
 And the value to be sent will be saved in the elem field.
 
 ![alt text](image-59.png)
@@ -1188,59 +1031,46 @@ This structure is enqueed into the `sendq` list.
 
 ![alt text](image-60.png)
 
-Then G-1 calls home to the school with call to go back.
+Then G-1 calls on to the scehduler with call to `gopark()`.
 
-The school will move driven out of the execution on the other street and other routine in the local
+The scheduler will move G1 out of the execution on the OS thread and other goroutine in the local run queue gets scheduled to run on the OS thread.
 
-then queue gets scheduled to run on the Western.
-
-
-Now D2 comes along and it tries to receive the value from the tenant.
+Now G2 comes along and it tries to receive the value from the channel.
 
 ![alt text](image-61.png)
 
-It first, a quasi look.
-
-deques the element from the Q.
+It first, select `look`. deques the element from the Queue. And copies the value into it's variable.
 
 ![alt text](image-62.png)
 
-And copies the value indeed variable.
+And pops the waiting G1 on the same queue and includes the value saved in the elem field?
 
-And what's the rating given on the sinking and includes the value saved in the infield?
+That is a value 4 into the buffer. This is important.
 
-That is a value fall into the Buffett.
+It is G2, which will enqueue the value to the buffer on which G1 was blocked.
 
-This is important.
-
-It is G2, which will include the value to the buffer on wind driven was blocked.
-
-And this is done for optimization, as do you want later, and you not have to do any channel operation
+And this is done for optimization, as G1 late in an have to do any channel operation
 
 again.
 
-Once Inc is done due to suits the state of Florida and given turinabol.
+Once enqueue is done G2 sets the state of goroutine G1 to runnable.
 
-And this is done by G2 calling guru dysfunction.
+And this is done by G2 calling `goready(G1)`.
+![alt text](image-64.png)
 
-What do you want?
+Then G1 is moved to the runnable state and gets added to the local run queue.
 
-Then Dewan is moved to the runnable state and gets added to the local and.
+![alt text](image-65.png)
 
-And the event will be scheduled to run on Wall Street when it gets turned.
+And G1 will be scheduled to run on os thread when it gets it chance.
 
-To summarize, we saw what happens in the case when the giant buffer is full and Goldin tries to send
+To summarize,
+we saw what happens in the case when the giant buffer is full and goroutine tries to send value.
 
-a value.
+This in the goroutine gets blocked, thisparked on sendq, the data is saved in the elem field of th sudog structure
 
-This in the world, in its blood, this pact on the thank you, the data is saved in the field of the
+when Receiver comes along, it dequeues the value from buffer
 
-self-destruct.
+enqueues the data from elem field to the buffer
 
-And the receiver comes along it because the value from the buffer and the data from the infield into
-
-the buffer and pumps the in in the same queue and puts it into the animal state.
-
-So this one is about what happens when the buffer is full and the next model.
-
-We will see what happens when we try to receive on empty.
+and Pops the goroutine in sendq, and puts it into runnable state.
