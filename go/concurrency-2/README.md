@@ -1074,3 +1074,378 @@ when Receiver comes along, it dequeues the value from buffer
 enqueues the data from elem field to the buffer
 
 and Pops the goroutine in sendq, and puts it into runnable state.
+
+## Buffer empty scenerio
+
+What happens when a goroutine G2 executes first and tries to receive on an empty channel?
+
+![alt text](image-66.png)
+
+The buffer is empty, and G2 has called a receive on an empty channel.
+![alt text](image-67.png)
+
+So G2 creates a sudog struct for itself and enqueues it into the receive queue of the channel and the elem field is going to hold the reference to a stack variable v,
+
+![alt text](image-68.png)
+
+And G2 calls upon the scheduler with the call to gopark function, the scheduler will move G2 out of the OS thread and does a context switching to the next goroutine in the local run queue.
+
+![alt text](image-69.png)
+
+Now G1 comes along and tries to send the value on the channel. First, it checks if there are any goroutines waiting in the receive queue of the channel and it finds G2.
+
+![alt text](image-70.png)
+
+Now, G1 copies of the value directly into the variable of the G2 stack and this is important. G1 is directly accessing the stack of G2 and writing to the variable in the G2 stack.
+
+![alt text](image-71.png)
+
+This is the only scenario where one goroutine accesses the stack of another goroutine, and this is done for the performance reasons so that later G2 need not have to come and do one more channel operation and there is one fewer memory copy.
+
+Then G1 pops G2 from the receive queue and puts it into the runnable state,
+
+![alt text](image-72.png)
+
+by calling the go ready functin G2
+
+![alt text](image-73.png)
+
+Now G2 moves back to the local run queue and it will get scheduled on the OS thread M1 when it gets a chance to run.
+
+![alt text](image-74.png)
+
+Now, what we saw here, we saw the buffer empty scenario.
+
+So when goroutine calls receive on an empty buffer, the goroutine is blocked and parked to the receive queue.
+
+The elem field in the sudog struct holds the reference to the stack variable of the receiver goroutine.
+
+The sender goroutine comes along and sender finds the goroutine in the receive queue.
+
+And the sender goroutine copies the data directly into the stack variable of the receiver goroutine.
+
+And pops the receiver goroutine in the receive queue and puts it into the runnable state.
+
+This was about what happens when the receive is called on the empty buffer.
+
+## Send and Receive Unbuffered channels
+
+In this module, we will look into send and receive on an unbuffered channels.
+
+let us see send on unbuffered channel
+
+When the sender goroutine wants to send values on the channel, if there is a corresponding receiver goroutine
+
+waiting in the receive queue, then the sender will write the value directly into the receiver goroutine's stack variable.
+
+The sender routine will then put the receiver goroutine back to the runnable state.
+
+If there is no receiver goroutine in the receive queue, then the sender gets parked into the send queue.
+
+And the data is saved in the elem field in the sudog struct, when the receiver comes along, it copies the data and puts the sender back to the runnable state.
+
+This was about what happens when we do send on an unbuffered channel.
+
+Now, let us see what happens when we do receive on an unbuffered channel.
+
+the receiver goroutine wants to receive value on the channel.
+
+If it finds a sender goroutine in the send queue, then the receiver copies the value in the elem field of the sudog struct to its variable.
+
+Then puts the sender goroutine back to the runnable state. If there was no sender goroutine in the send queue. Then the receiver gets parked into the receive queue.
+
+And a reference to the variable is saved in the elem field in this sudog struct, when the sender comes along,
+
+it copies the data directly into the receiver stack variable.
+
+And puts the receiver back to the runnable state.
+
+So this is what happened on the receive, on the unbuffered channel.
+
+## Final Summary for Channel
+
+Till now we saw the internal working of the channels, what happens when a channel is created?
+
+What happens when we do send or receive on a channel?
+
+Let us summarize.
+
+hchan struct represents the channel, it contains circular ring, buffer and mutex lock. The goroutines, have to acquire the mutex lock to do any channel operation.
+
+When a goroutine gets blocked on send or receive, then they are parked in the send queue or the receive queue.
+
+Go scheduler moves the blocked goroutine out of the OS thread.
+
+Once the channel operation is complete, goroutines are moved back to the local run queue.
+
+This was all about how to channel, send and receive works.
+
+By now, you should have become very comfortable with goroutines and channels, which are the pillars of concurrency in Go.
+
+## Select
+
+Here is our scenario, goroutine G1 has spawned two goroutines, G2 and G3 and has given them a task to do.
+
+![alt text](image-75.png)
+
+Now, the question is, in what order are we going to receive the results from these two goroutines?
+
+Are we going to receive from G2 first and then G3 or G3 first and then G2.
+
+![alt text](image-76.png)
+
+What if the G3 executes faster in some instances and returns the result faster and G2 executes faster in other instances and returns the results faster
+
+So the question is, can we do the operation on the channel, whichever is ready and not worry about the order.
+
+And this is where select comes into play. Select is like a switch statement, each case statement specifies a send or receive on some channel and it has an associated block of statements.
+
+![alt text](image-77.png)
+
+Each case statement is not evaluated sequentially, but all channel operations are considered simultaneously to see if any of them is ready.
+
+And each case has an equal chance of being selected.
+
+Select waits until some case is ready to proceed, if none of the channels are ready, the entire select statement is going to block, until some case is ready for the communication.
+
+When one channel is ready, then it performs the channel operation and executes the associated block of statements.
+
+If multiple channels are ready, then it's going to pick one of them at random.
+
+`Select` is very helpful in implementing timeouts and not blocking communication.
+
+You can specify time out on the channel operation by using select and time after function.
+
+![alt text](image-78.png)
+
+Select will wait until there is a event on the channel or until the timeout is reached.
+
+The time after function will take a time duration as input, and it returns a channel.
+
+And it starts a goroutine in the background, and sends the value on the channel after the specified time duration. In this code snippet, the select will wait for a value to arrive on the channel ch for three seconds.
+
+If it does not arrive, then it's going to get timed out.
+
+you know, channels are blocking, right, you can achieve non-blocking operation with select
+
+by specifying the default case.
+
+![alt text](image-79.png)
+
+If none of the channel operation is ready, then the default case gets executed and the select does not wait for the channel.
+
+It just checks if the operation is ready, if it is, it performs the operation, if not, then the default case gets executed.
+
+So in this code snippet, if some goroutine has already sent a value on the channel ch, then it will read the value.
+
+If there was no goroutine, which has sent a value, then it just executes the default case.
+
+Some scenarios to consider are, the empty select statement will block forever and select on the nil channel will also block forever.
+![alt text](image-80.png)
+
+So let us summarize.
+
+So you saw select is like a switch statement.
+
+With each case statement specifying a channel operation.
+
+And the select is going to block until there is any case ready for the channel operation. With select we can implement a timeout and nonblocking communication and select on nil channel will block forever.
+
+### `Select` Exercise:
+
+### Exercise Channel ownership 01-exercise/03-select/01-select
+
+### Timeout Exercise:
+
+### Exercise Channel ownership 01-exercise/03-select/02-select
+
+### Non-blocking Exercise:
+
+### Exercise Channel ownership 01-exercise/03-select/03-select
+
+## sync Package
+
+We have already seen sync wait group, we will look into other utilities in the sync package, like the mutex, condition variables, atomic and pool.
+
+We'll start with mutex (`sync.Mutex`).
+
+Question is when to use channels and when to use mutex?
+channels are great for communication between the goroutines.
+
+But what if we have like caches, registries and state, which are big to be sent over the channel and we want the access to these data to be concurrent safe, so that only one goroutine has an access at a time.
+
+So this is where classical synchronization tools like the mutex comes into the picture.
+
+So we use channels to pass data between the goroutines and distribute units of work and communicate asynchronous results, and we use mutex to protect caches, registries and states from concurrent access.
+
+Mutex is used to guard access to the shared resource.
+
+Mutex provides a convention for the developers to follow, anytime a developer wants to access the shared memory, they must first acquire a lock and when they are finished, they must release the lock.
+
+![alt text](image-81.png)
+
+And locks are exclusive, if a goroutine has acquired the lock, then other goroutines will block until the lock is available.
+
+The region between the lock and unlock is called the critical section.
+
+And it is common idiom to call unlock with defer, so that unlock gets executed at the end of the function.
+
+The critical section reflects the bottleneck where only one goroutine can be either be reading or writing to a shared memory, if the goroutine is just reading and not writing to the memory, then we can use read write mutex.
+
+`sync.RWMutex` allows multiple readers access to the critical section, simultaneously, unless the lock is being held by the writer.
+
+![alt text](image-82.png)
+
+The writer gets the exclusive look. And here they defer unlock runs after the return statement has read the value of the balance.
+
+Let us summarize.
+
+Mutex is used to guard access to the shared resource.
+
+It is a developers convention to call lock to access the shared memory and call unlock when done.
+
+And the critical section represents the bottleneck between the goroutines.
+
+### Exercise Mutex:
+
+### Exercise Channel ownership 01-exercise/03-select/03-mutex
+
+`sync.AUtomic` :
+
+Atomic is used to perform low level atomic operation on the memory. It is used by other synchronization utilities.
+
+It is a Lockless operation.
+
+Here in this example, we are using a atomic operation on the counters, we use add method to increment the value of the counter, and this add method can be called by multiple goroutines concurrently and the access to the memory will be concurrent safe. And we use the load method to read the value of the counter in a concurrent safe manner.
+
+`runtime.GOMAXPROCS(4)`: tells go runtime to use 4 cpu cores to run our go routines. so 4 goroutines can be run in parallel
+
+![alt text](image-83.png)
+
+### Exercise Atomic:
+
+### Exercise Channel ownership 01-exercise/04-sync/11-atomic
+
+`sync.Cond` :
+
+Conditional variable is one of the synchronization mechanisms, a conditional variable is basically a container of goroutines that are waiting for a certain condition.
+
+The question is, how can we make a goroutine wait till some event or condition occurs, one way could be to wait in a loop for the condition to become true.
+
+![alt text](image-84.png)
+
+In this code snippet, we have a shared resource, a map that is being shared between the goroutines.
+
+And the consumer goroutine, needs to wait for the shared map to be populated before processing it.
+
+So first we will acquire a lock.
+
+We check for the condition whether the shared map is populated by checking the length of the map.
+
+If it is not populated, then we release the lock, sleep for an arbitrary duration of time and again acquire a lock.
+
+And check for the condition again. This is quite inefficient, right?
+
+What we need is we need some way to make the goroutine suspend while waiting, and some way to signal the suspended goroutine that, that particular event has occurred.
+
+Can we use channels?
+
+We can use channels to block the goroutine on receive and sender goroutine to indicate the occurrence of the event.
+
+But what if there are multiple goroutines waiting on multiple conditions?
+
+That's where conditional variables comes into the picture.
+
+```go
+  var c *sync.Cond
+```
+
+Conditional variables are of type sync.Cond, we use the constructor method, NewCond() to create a conditional variable, and it takes a sync locker interface as input, which is usually a sync mutex.
+
+![alt text](image-85.png)
+
+And this is what allows the conditional variable to facilitate the coordination between the goroutines in a concurrent. safe way.
+
+sync.Cond package contains three methods.
+
+![alt text](image-86.png)
+
+wait, signal and broadcast.
+
+wait method, suspends the execution of the calling thread, and it automatically releases the lock before suspending the goroutine. Wait does not return unless it is woken up by a broadcast or a signal.
+
+![alt text](image-87.png)
+
+Once it is woken up, it acquires the lock again.
+
+And on resume, the caller should check for the condition again, as it is very much possible that another goroutine could get scheduled between the signal and the resumption of wait and change the state of the condition.
+
+So this is why we check for the condition in a for loop here.
+
+![alt text](image-88.png)
+
+Signal, signal wakes up one goroutine that was waiting on a condition. The signal finds a goroutine that was waiting the longest and notifies that goroutine. And it is allowed, but not required for the caller to hold the lock during this call.
+
+![alt text](image-89.png)
+
+Broadcast, broadcast wakes up all the goroutine that were waiting on the condition, and again, it is allowed, but it is not required for the caller to hold the lock during this call.
+
+Let us look into an example, we have a goroutine G2 which needs to wait for the shared resource to be populated before proceeding with its processing.
+
+![alt text](image-90.png)
+
+We create a conditional variable with the constructor NewCond, passing it the mutex as the input. Here we have our shared resource, this is our goroutine and we take the lock for the entire duration of our processing. We check for the condition, whether they shared resources populated, if not, we make a call to the wait. Wait implicitly releases the lock and suspends our goroutine.
+
+Now the producer goroutine comes along.
+
+![alt text](image-91.png)
+
+It acquires a lock, populates the shared resource, and sends a signal to the consumer goroutine and then it releases the lock.
+
+On receiving the signal, the consumer goroutine is put back to the runnable state and wait acquires the lock again, the wait returns, we check for the condition again, and then we proceed with our processing and we release the lock.
+
+So this is how the wait and signal mechanism works.
+
+If there are multiple goroutines, waiting on a condition, then we use broadcast.
+
+![alt text](image-92.png)
+
+The broadcast will send a signal to all the goroutines that were waiting on the condition. So in this way, we are able to coordinate the execution of the goroutines, when they need to wait on an occurrence of a condition or an event.
+
+Let us summarize, so we saw that conditional variable are used to synchronize the execution of the goroutines, and there are three methods, wait suspends the execution of the goroutine. Signal wakes up one goroutine that was waiting on the condition. Broadcast, wakes up all the goroutines that were waiting on that condition.
+
+### Exercise Cond:
+
+### Exercise Channel ownership 01-exercise/04-sync/21-cond
+
+### Exercise Channel ownership 01-exercise/04-sync/22-cond
+
+`sync.Once`
+
+sync once is used to run one time initialization functions, the Do method accepts the initialization function as its argument. sync once ensures that only one call to Do ever calls the function, that is passed in, even when called from different goroutines.
+
+And this is pretty useful in the creation of a singleton object or calling initialization functions, which multiple goroutines depends on, but we want the initialization function to run only once.
+
+### Exercise Channel ownership 01-exercise/04-sync/31-once
+
+`sync.Pool`
+
+Pool is commonly used to constrain the creation of expensive resources like the database connections, network connections and memory.
+
+We will maintain a pool of fixed number of instances of the resource and those resources from the pool will be reused rather than creating new instances each time whenever the caller requires them.
+
+![alt text](image-94.png)
+
+The caller, calls the get method, whenever it wants access to the resource. And this method will first check, whether there is any available instance within the pool.
+
+If yes, then it returns that instance to the caller.
+
+If not, then a new instance is created which is returned to the caller.
+
+When finished with the usage, the caller, calls the put method, which places the instance back to the pool, which can be reused by other processes.
+
+![alt text](image-95.png)
+
+In this way, you can place a constraint on the creation of expensive resources.
+
+### Exercise Channel ownership 01-exercise/04-sync/41-pool
