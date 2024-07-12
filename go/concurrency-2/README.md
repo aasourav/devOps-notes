@@ -66,7 +66,7 @@ Wy limitations?
 
 Context switches are considered expensive. CPU has to spend time copying the context of the current executing thread into memory and restoring the context of the next chosen thread And it does take thousands of CPU instructions to do context switching, and it is a wasted time as CPU is not running your application, but doing context switching.
 
-![alt text](./images/image5.png)
+![alt 3text](./images/image5.png)
 
 In this diagram, you might see the context switching between the threads of the same process is relatively. cheap compared to the context switching between the threads of different processes.
 
@@ -79,7 +79,7 @@ the scheduler allocates a time slice for each process to execute on CPU core.
 This CPU time slice is divided equally among threds.
 ![c10k](./images/image6.png)
 
-![alt text](./images/image7.png)
+![alt teext](./images/image7.png)
 
 So if we define scheduler period as 10 milliseconds and we have two threads, then each thread is
 
@@ -106,7 +106,7 @@ So the application is going to become less responsive.
 
 ### So other issue is the stack size, the operating system gives a fixed stack size for each thread,
 
-![stack size issue](image9.png)
+![stack size issue](./images/image9.png)
 
 the actual size depends on the hardware.
 
@@ -158,7 +158,7 @@ Let us consider an example with thread 1 and thread 2 are running concurrently.
 
 and here they are trying to increment the value of a global variable i.
 
-![alt text](./images/image999.png)
+![alt 2](./images/image999.png)
 
 The increment operation is not atomic, at the code level
 
@@ -172,7 +172,7 @@ So let us see some scenarios.
 
 Now, let us take two sequence of execution, in the first sequence, thread 1 and thread 2 are executing
 
-![alt text](image-1.png)
+![alt text](./images/image-1.png)
 
 sequentially, one after another.
 
@@ -184,13 +184,13 @@ Let us consider the first scenario, thread 1 starts the execution, it retrieves 
 
 will be zero, it increments it and then stores the value of i.
 
-![alt text](image-2.png)
+![alt text](./images/image-2.png)
 
 then thread 2 to come along, it retrieves the value of i, which will be one, and it increments by one and
 
 it stores the value of i, which will be 2.
 
-![alt text](image-3.png)
+![alt text](./images/image-3.png)
 
 This is fine, now let us consider the second scenario.
 
@@ -208,15 +208,15 @@ then it increments it
 
 and it stores the value of i as 1.
 
-![alt text](image-4.png)
+![alt text](./images/image-4.png)
 
 Now, thread 1 comes along and it will store the value of i as 1.
 
-![alt text](image-5.png)
+![alt text](./images/image-5.png)
 
 As you see, the value of i, can be 2 or it can be 1, depending on how the threads are executing.
 
-![alt text](image-6.png)
+![alt text](./images/image-6.png)
 
 So concurrent access to memory, leads to un-deterministic outcomes.
 
@@ -228,7 +228,7 @@ and we need to force thread 1 and thread 2 to run sequentially, to increment the
 
 We can do this by putting a lock on the increment operation.
 
-![alt text](image-7.png)
+![alt text](./images/image-7.png)
 
 Putting a lock around a shared memory is a developer's convention, so any time a developer wants to
 
@@ -252,7 +252,7 @@ The other problem is, coding mistakes, in-appropriate use of locks can lead to d
 
 Let us see an example.
 
-![alt text](image-8.png)
+![alt text](./images/image-8.png)
 
 Here there are two threads executing concurrently.
 
@@ -268,7 +268,7 @@ Now, thread2 comes along and it wants a lock on resource v1, but it is not avail
 
 waiting state.
 
-![alt text](image-9.png)
+![alt text](./images/image-9.png)
 
 So as you see, this is a circular wait, which leads to deadlock and the application will just hang.
 
@@ -330,12 +330,12 @@ Go runtime can be more selective in what data is persisted, how it is persisted 
 
 Go runtime creates OS threads, goroutines runs in the context of the OS thread.This is important.
 
-![alt text](image-10.png)
+![alt text](./images/image-10.png)
 
 Goroutines are running in the context of the OS threads.
 Many goroutines can execute in the context of the single OS thread. The operating system schedules the OS threads and the Go runtime schedules, multiple goroutines on the OS thread.
 
-![alt text](image-11.png)
+![alt text](./images/image-11.png)
 
 For the operating system, nothing has changed, it is still scheduling the threads, as it was. Go runtime manages the scheduling of the goroutines on the OS threads.
 
@@ -384,7 +384,7 @@ The order in which the main routine and the goroutine will execute is undetermin
 
 In this example, there are three possible outcomes.
 
-![alt text](image-12.png)
+![alt text](./images/image-12.png)
 
 The first outcome can be nothing is printed, if the sequence of execution is, goroutine gets scheduled before main routine checks the value of the data.
 
@@ -412,7 +412,7 @@ Can we make main routine, wait for the goroutine to execute before checking the 
 
 This is where sync.waitGroup comes into play.
 
-![alt text](image-13.png)
+![alt text](./images/image-13.png)
 
 Go follows logical concurrency model called fork and join.
 
@@ -452,7 +452,7 @@ They can directly modify the variables in the enclosing lexical block.
 
 This enables developers to write goroutines within the <b>lexical block</b> of the enclosing function as a sequential code. Go compiler and the runtime takes care of pinning the variable, moving the variable from stack to heap, to facilitate goroutines, to have access to the variable even after the enclosing function has returned.
 
-![alt text](image-14.png)
+![alt text](./images/image-14.png)
 
 ### go-concurrency-exercise -> 01-exercise -> 01-goroutines -> 05-closure
 
@@ -532,7 +532,7 @@ When that time slice is over, Go scheduler will try to preempt it, this provides
 
 Similar to threads, goroutines also have states.
 
-![alt text](image-15.png)
+![alt text](./images/image-15.png)
 
 When it is created, it will be in runnable state, waiting in the run queue.
 
@@ -544,7 +544,7 @@ Once the I/O operation is complete, they are moved back to the runnable state.
 
 Now we will look into different elements involved in Go scheduling.
 
-![alt text](image-16.png)
+![alt text](./images/image-16.png)
 
 For a CPU core, Go runtime creates a OS thread, which is represented by the letter M. OS thread works pretty much like POSIX thread. Go runtime also creates a logical processor P, and associate that with the OS thread M.
 
@@ -560,13 +560,13 @@ When new goroutines are created, they're added to the end of the global run queu
 
 Let's see a context switch.
 
-![alt text](image-17.png)
+![alt text](./images/image-17.png)
 
 Goroutine G1 has reached a scheduling point,
 
 then the logical processor will pop a goroutine from its local run queue in this case G2 and sets the stack and the instruction pointer for the goroutine G2 and begins running that goroutine, the previously running goroutine G1, is placed back into the local run queue.
 
-![alt text](image-18.png)
+![alt text](./images/image-18.png)
 
 As you see, there is no change as far as the OS is concerned.
 
@@ -576,7 +576,7 @@ The context switching between the goroutines is managed by the logical processor
 
 There is a one to one mapping between OS thread and the logical processor, if there are two cores and we have set GOMAXPROC environment variable to 2, then go runtime, creates another OS thread and logical processor, and associates the OS thread with the logical processor, and goroutines can be scheduled on the second OS thread.
 
-![alt text](image-19.png)
+![alt text](./images/image-19.png)
 
 Let us summarize.
 
@@ -610,7 +610,7 @@ So how does Go scheduler handle this scenario?
 
 Let us see.
 
-![alt text](image-20.png)
+![alt text](./images/image-20.png)
 
 Here goroutine G1 is running on OS thread M1.
 
@@ -618,11 +618,11 @@ G1 is going to make synchronous system call, like reading on a file, that will m
 
 Go scheduler identifies that G1 has caused OS thread M1 to block, so it brings in a new OS thread, either from the thread pool cache or it creates a new OS thread if a thread is not available in the thread pool cache.
 
-![alt text](image-21.png)
+![alt text](./images/image-21.png)
 
 Then Go scheduler will detach the logical processor P from the OS thread M1, and moves it to the new OS thread M2.
 
-![alt text](image-22.png)
+![alt text](./images/image-22.png)
 
 G1 is still attached to the old OS thread M1.
 
@@ -630,7 +630,7 @@ The logical processor P can now schedule other goroutines in its local run queue
 
 Once the synchronous system call that was made by G1 is complete, then it is moved back to the end of the local run queue on the logical processor P.
 
-![alt text](image-23.png)
+![alt text](./images/image-23.png)
 
 And M1 is put to sleep and placed in the thread pool cache.
 
@@ -680,7 +680,7 @@ Let us look into an example.
 
 Here G1 is executing on the OS thread M1.
 
-![alt text](image-24.png)
+![alt text](./images/image-24.png)
 
 G1 opens an network connection with net.Dial
 
@@ -694,7 +694,7 @@ Then it calls into the netpoller, then the scheduler will move the goroutine G1 
 
 And another goroutine in the local run queue, in this case G2 gets scheduled to run on the OS thread M1.
 
-![alt text](image-25.png)
+![alt text](./images/image-25.png)
 
 The netpoller uses the interface provided by the operating system to poll on the file descriptor.
 
@@ -704,7 +704,7 @@ To see if there are any goroutines that are blocked on that file descriptor.
 
 Then it notifies that goroutine, then that goroutine can retry the I/O operation. Once the I/O operation is complete, the goroutine is moved back to the local run queue and it will be processed, by the OS thread M1 when it gets a chance to run.
 
-![alt text](image-26.png)
+![alt text](./images/image-26.png)
 
 In this way to process an asynchronous system call, no extra OS thread is used, instead the netpoller OS thread is used to process the Go routines.
 
@@ -726,13 +726,13 @@ In this module, we will look into work stealing concept in Go scheduler.Work ste
 
 Let us look into an example, here we have a multithreaded go program, we have 2 OS threads and 2 logical processors, the goroutines are distributed among the logical processors.
 
-![alt text](image-27.png)
+![alt text](./images/image-27.png)
 
 Now, what happens if one of the logical processor services all its goroutines quickly? the global run queue and local run queue of P2.
 
 We see that P1 has no more goroutines to execute, but there are goroutines in runnable state in
 
-![alt text](image-28.png)
+![alt text](./images/image-28.png)
 
 The work stealing rule says that, if there are no goroutines in the local run queue, then try to steal from other logical processors.
 
@@ -740,15 +740,15 @@ If not found, check the global run queue for the goroutines.
 
 If not found, check the netpoller.
 
-![alt text](image-29.png)
+![alt text](./images/image-29.png)
 
 In this case, P1 does not have any runnable goroutine in its local run queue, so it randomly picks another logical processor, P2 in this case and steals half of its goroutines from its local run queue.
 
-![alt text](image-30.png)
+![alt text](./images/image-30.png)
 
 We see P1 has picked up goroutines, G7 and G8 to its own local run queue.And P1 will be able to execute those goroutines.Now we are able to better utilize the CPU cores and the work is fairly distributed between multiple logical processors.
 
-![alt text](image-31.png)
+![alt text](./images/image-31.png)
 
 What happens when P2 finishes executing all its goroutines?
 
@@ -756,9 +756,9 @@ And P1 one does not have any goroutine in its local run queue.
 
 Then, according to work stealing rule, P2 will look into the global run queue and finds goroutine G9.
 
-![alt text](image-32.png)
+![alt text](./images/image-32.png)
 
-![alt text](image-33.png)
+![alt text](./images/image-33.png)
 
 G9 get scheduled on OS thread M2.
 
@@ -772,7 +772,7 @@ So, work stealing helps to balance goroutines across the logical processor and w
 
 ## Channels
 
-![alt text](image-63.png)
+![alt text](./images/image-63.png)
 
 Here we have a code snippet, where goroutine is making a computation, and we want to get the result of that computation in our main routine without having to share the memory.
 
@@ -823,7 +823,7 @@ And for receive, the arrow direction indicates that the value is being received 
 
 channels are blocking, the sending goroutine is going to block until there is a corresponding receiver goroutine ready to receive the value.
 
-![alt text](image-34.png)
+![alt text](./images/image-34.png)
 
 Similarly, the receiver goroutine is going to block until there is a corresponding sender goroutine, sending the value.
 
@@ -851,7 +851,7 @@ So the second return value will be true if the value is generated by write or it
 
 ## Range Over the channel
 
-![alt text](image-35.png)
+![alt text](./images/image-35.png)
 
 Range over the channel, the receiver goroutine can use range to receive a sequence of values from the channel. range over the channel will iterate over the values received from a channel.
 
@@ -862,7 +862,7 @@ Normally the receive returns the second boolean value, but range just returns va
 Unbuffered channels:
 the channels that we have been creating till now are unbuffered channels.
 
-![alt text](image-36.png)
+![alt text](./images/image-36.png)
 
 There is no buffer between the sender goroutine and the receiver goroutine.
 
@@ -870,7 +870,7 @@ Since there is no buffer, the sender goroutine will block until there is a recei
 
 In buffered channels, there is a buffer between the sender and the receiver goroutine, and we can specify the capacity, that is the buffer size, which indicates the number of elements that can be sent without the receiver being ready to receive the values.
 
-![alt text](image-37.png)
+![alt text](./images/image-37.png)
 
 The sender can keep sending the values without blocking, till the buffer gets full, when the buffer gets full, the sender will block.
 
@@ -888,7 +888,7 @@ When using channels as functional parameters, you can specify if the channel is 
 
 And this specificity will help us to increase the type safety of the programs, in the below example, in is a receive only channel, note the syntax, it's a pointer operator followed by the chan keyword, and out is a send only channel, and the syntax is, chan keyword followed by the pointer operator.
 
-![alt text](image-38.png)
+![alt text](./images/image-38.png)
 
 In this example, the pong function can use in, only to receive values. It cannot use this channel to send values. If it tries to send values on this channel, the compiler is going to report an error.so in this way, we can control what operations that function can do with the channels that are passed as parameters.
 
@@ -896,7 +896,7 @@ In this example, the pong function can use in, only to receive values. It cannot
 
 ## Channel ownership
 
-![alt text](image-39.png)
+![alt text](./images/image-39.png)
 
 Now we will look into the things that we should be aware when working with channels, and this will help us in troubleshooting.
 
@@ -907,11 +907,11 @@ So we should allocate memory by using the built-in function make.
 
 If that does not happen and we try to send or receive on that channel, then it's going to block forever.
 
-![alt text](image-40.png)
+![alt text](./images/image-40.png)
 
 Similarly, closing on the new channel will panic, so we should always make sure that the channels are initialized with the built-in function make.
 
-![alt text](image-41.png)
+![alt text](./images/image-41.png)
 
 How we use the channels is important to avoid deadlocks and panics.
 
@@ -931,11 +931,11 @@ In this module and in the next couple of modules, we will try to understand the 
 
 We use built-in function make to create channels. Here we are creating a buffered channel with three elements.
 
-![alt text](image-42.png)
+![alt text](./images/image-42.png)
 
 Internally, the channels are represented by the `hchan` structure. Now let us look into different fields in the hchan struct.
 
-![alt text](image-43.png)
+![alt text](./images/image-43.png)
 
 It has a mutex lock field, any goroutine doing any channel operation must first acquire the lock on the channel.buf is a circular ring buffer where the actual data is stored.
 
@@ -943,17 +943,17 @@ And this is used only for the buffered channels, data queue size, is the size of
 
 recvq and sendq are the waiting queues which are used to store blocked goroutines, the goroutines that were blocked while they were trying to send data, or while they were trying to receive data from the channel. waitq, is the linked list of goroutines, the elements in the linked list is represented by the sudog struct.
 
-![alt text](image-44.png)
+![alt text](./images/image-44.png)
 
 In the sudog struct, we have the field g, which is a reference to the goroutine, and elem field is pointer to memory, which contains the value to be sent, or to which the received value will be written to.
 
-![alt text](image-45.png)
+![alt text](./images/image-45.png)
 
 When we create a channel with built-in function make, hchan struct is allocated in the heap, and make returns a reference to the allocated memory.
 
 And since ch is a pointer, it can be sent between the functions which can perform, send or receive operation on the channel.
 
-![alt text](image-46.png)
+![alt text](./images/image-46.png)
 
 This is a runtime values of hchan struct. buf is been allocated a ring buffer and dataq size is set to 3, this value comes from the parameter that has been passed to the make function.
 
@@ -965,48 +965,48 @@ So in this module, we looked into how channels are represented.
 
 Let us now look into what happens when we do send or receive on a buffered channel.
 
-![alt text](image-47.png)
+![alt text](./images/image-47.png)
 
 In this code snippet, we have 2 goroutines goroutine G1 is sending a sequence of values into the channel, and goroutine G2 is receiving the sequence of values by ranging over the channel. Now, when we create a channel, this will be the representation.
 
-![alt text](image-48.png)
+![alt text](./images/image-48.png)
 
 There is a circular queue with size three, which is currently empty.
 
-![alt text](image-49.png)
+![alt text](./images/image-49.png)
 
 Let us now consider the scenario when the G1 executes first, G1 is trying to send a value on the channel, which has empty buffer.
 
 First, the goroutine has to acquire the lock on the hchan struct.
-![alt text](image-50.png)
+![alt text](./images/image-50.png)
 
 Then it enqueues the element into the circular ring buffer.
 
-![alt text](image-51.png)
+![alt text](./images/image-51.png)
 
 Note that this is a memory copy. The element is copied into the buffer. Then it increments the value of the sendx to 1. Then it releases the lock on the channel and proceed with its other computation.
 
-![alt text](image-52.png)
+![alt text](./images/image-52.png)
 
 Now G2 comes along and tries to receive the value from the channel.
 
-![alt text](image-53.png)
+![alt text](./images/image-53.png)
 
 First, it has to acquire the lock on the hchan struct, then it dequeues the element from the buffer queue and copies the value to its variable, v.
 
-![alt text](image-54.png)
+![alt text](./images/image-54.png)
 
 And it increments the receive index by 1 and releases the lock on the channel struct and proceeds with its other computation.
 
-![alt text](image-55.png)
+![alt text](./images/image-55.png)
 
-![alt text](image-56.png)
+![alt text](./images/image-56.png)
 
 This is a simple send and receive an a buffered channel. The points to note are, there is no memory sharing between the goroutines. The goroutines copy elements to and from hchan struct and hchan struct is protected by the mutex lock.
 
 So this is where the Go's tag line comes from. Do not communicate by sharing memory, but instead share memory by communicating.
 
-![alt text](image-57.png)
+![alt text](./images/image-57.png)
 
 So in this module we saw a simple send and receive on a buffered channel and the next module will look into what happens when the buffer is full.
 
@@ -1014,7 +1014,7 @@ So in this module we saw a simple send and receive on a buffered channel and the
 
 Now, let us consider the Buffalo scenario.
 
-![alt text](image-58.png)
+![alt text](./images/image-58.png)
 
 G1 enquees the values 1 2 3. buffer gets full and G1 wants to send value 4?
 
@@ -1025,11 +1025,11 @@ Now, how does that happen?
 G1 creates `sudog` `G` and G element will hold the reference to the goroutine G1
 And the value to be sent will be saved in the elem field.
 
-![alt text](image-59.png)
+![alt text](./images/image-59.png)
 
 This structure is enqueed into the `sendq` list.
 
-![alt text](image-60.png)
+![alt text](./images/image-60.png)
 
 Then G-1 calls on to the scehduler with call to `gopark()`.
 
@@ -1037,11 +1037,11 @@ The scheduler will move G1 out of the execution on the OS thread and other gorou
 
 Now G2 comes along and it tries to receive the value from the channel.
 
-![alt text](image-61.png)
+![alt text](./images/image-61.png)
 
 It first, select `look`. deques the element from the Queue. And copies the value into it's variable.
 
-![alt text](image-62.png)
+![alt text](./images/image-62.png)
 
 And pops the waiting G1 on the same queue and includes the value saved in the elem field?
 
@@ -1056,11 +1056,11 @@ again.
 Once enqueue is done G2 sets the state of goroutine G1 to runnable.
 
 And this is done by G2 calling `goready(G1)`.
-![alt text](image-64.png)
+![alt text](./images/image-64.png)
 
 Then G1 is moved to the runnable state and gets added to the local run queue.
 
-![alt text](image-65.png)
+![alt text](./images/image-65.png)
 
 And G1 will be scheduled to run on os thread when it gets it chance.
 
@@ -1079,40 +1079,40 @@ and Pops the goroutine in sendq, and puts it into runnable state.
 
 What happens when a goroutine G2 executes first and tries to receive on an empty channel?
 
-![alt text](image-66.png)
+![alt text](./images/image-66.png)
 
 The buffer is empty, and G2 has called a receive on an empty channel.
-![alt text](image-67.png)
+![alt text](./images/image-67.png)
 
 So G2 creates a sudog struct for itself and enqueues it into the receive queue of the channel and the elem field is going to hold the reference to a stack variable v,
 
-![alt text](image-68.png)
+![alt text](./images/image-68.png)
 
 And G2 calls upon the scheduler with the call to gopark function, the scheduler will move G2 out of the OS thread and does a context switching to the next goroutine in the local run queue.
 
-![alt text](image-69.png)
+![alt text](./images/image-69.png)
 
 Now G1 comes along and tries to send the value on the channel. First, it checks if there are any goroutines waiting in the receive queue of the channel and it finds G2.
 
-![alt text](image-70.png)
+![alt text](./images/image-70.png)
 
 Now, G1 copies of the value directly into the variable of the G2 stack and this is important. G1 is directly accessing the stack of G2 and writing to the variable in the G2 stack.
 
-![alt text](image-71.png)
+![alt text](./images/image-71.png)
 
 This is the only scenario where one goroutine accesses the stack of another goroutine, and this is done for the performance reasons so that later G2 need not have to come and do one more channel operation and there is one fewer memory copy.
 
 Then G1 pops G2 from the receive queue and puts it into the runnable state,
 
-![alt text](image-72.png)
+![alt text](./images/image-72.png)
 
 by calling the go ready functin G2
 
-![alt text](image-73.png)
+![alt text](./images/image-73.png)
 
 Now G2 moves back to the local run queue and it will get scheduled on the OS thread M1 when it gets a chance to run.
 
-![alt text](image-74.png)
+![alt text](./images/image-74.png)
 
 Now, what we saw here, we saw the buffer empty scenario.
 
@@ -1186,13 +1186,13 @@ By now, you should have become very comfortable with goroutines and channels, wh
 
 Here is our scenario, goroutine G1 has spawned two goroutines, G2 and G3 and has given them a task to do.
 
-![alt text](image-75.png)
+![alt text](./images/image-75.png)
 
 Now, the question is, in what order are we going to receive the results from these two goroutines?
 
 Are we going to receive from G2 first and then G3 or G3 first and then G2.
 
-![alt text](image-76.png)
+![alt text](./images/image-76.png)
 
 What if the G3 executes faster in some instances and returns the result faster and G2 executes faster in other instances and returns the results faster
 
@@ -1200,7 +1200,7 @@ So the question is, can we do the operation on the channel, whichever is ready a
 
 And this is where select comes into play. Select is like a switch statement, each case statement specifies a send or receive on some channel and it has an associated block of statements.
 
-![alt text](image-77.png)
+![alt text](./images/image-77.png)
 
 Each case statement is not evaluated sequentially, but all channel operations are considered simultaneously to see if any of them is ready.
 
@@ -1216,7 +1216,7 @@ If multiple channels are ready, then it's going to pick one of them at random.
 
 You can specify time out on the channel operation by using select and time after function.
 
-![alt text](image-78.png)
+![alt text](./images/image-78.png)
 
 Select will wait until there is a event on the channel or until the timeout is reached.
 
@@ -1230,7 +1230,7 @@ you know, channels are blocking, right, you can achieve non-blocking operation w
 
 by specifying the default case.
 
-![alt text](image-79.png)
+![alt text](./images/image-79.png)
 
 If none of the channel operation is ready, then the default case gets executed and the select does not wait for the channel.
 
@@ -1241,7 +1241,7 @@ So in this code snippet, if some goroutine has already sent a value on the chann
 If there was no goroutine, which has sent a value, then it just executes the default case.
 
 Some scenarios to consider are, the empty select statement will block forever and select on the nil channel will also block forever.
-![alt text](image-80.png)
+![alt text](./images/image-80.png)
 
 So let us summarize.
 
@@ -1282,7 +1282,7 @@ Mutex is used to guard access to the shared resource.
 
 Mutex provides a convention for the developers to follow, anytime a developer wants to access the shared memory, they must first acquire a lock and when they are finished, they must release the lock.
 
-![alt text](image-81.png)
+![alt text](./images/image-81.png)
 
 And locks are exclusive, if a goroutine has acquired the lock, then other goroutines will block until the lock is available.
 
@@ -1294,7 +1294,7 @@ The critical section reflects the bottleneck where only one goroutine can be eit
 
 `sync.RWMutex` allows multiple readers access to the critical section, simultaneously, unless the lock is being held by the writer.
 
-![alt text](image-82.png)
+![alt text](./images/image-82.png)
 
 The writer gets the exclusive look. And here they defer unlock runs after the return statement has read the value of the balance.
 
@@ -1320,7 +1320,7 @@ Here in this example, we are using a atomic operation on the counters, we use ad
 
 `runtime.GOMAXPROCS(4)`: tells go runtime to use 4 cpu cores to run our go routines. so 4 goroutines can be run in parallel
 
-![alt text](image-83.png)
+![alt text](./images/image-83.png)
 
 ### Exercise Atomic:
 
@@ -1332,7 +1332,7 @@ Conditional variable is one of the synchronization mechanisms, a conditional var
 
 The question is, how can we make a goroutine wait till some event or condition occurs, one way could be to wait in a loop for the condition to become true.
 
-![alt text](image-84.png)
+![alt text](./images/image-84.png)
 
 In this code snippet, we have a shared resource, a map that is being shared between the goroutines.
 
@@ -1362,19 +1362,19 @@ That's where conditional variables comes into the picture.
 
 Conditional variables are of type sync.Cond, we use the constructor method, NewCond() to create a conditional variable, and it takes a sync locker interface as input, which is usually a sync mutex.
 
-![alt text](image-85.png)
+![alt text](./images/image-85.png)
 
 And this is what allows the conditional variable to facilitate the coordination between the goroutines in a concurrent. safe way.
 
 sync.Cond package contains three methods.
 
-![alt text](image-86.png)
+![alt text](./images/image-86.png)
 
 wait, signal and broadcast.
 
 wait method, suspends the execution of the calling thread, and it automatically releases the lock before suspending the goroutine. Wait does not return unless it is woken up by a broadcast or a signal.
 
-![alt text](image-87.png)
+![alt text](./images/image-87.png)
 
 Once it is woken up, it acquires the lock again.
 
@@ -1382,23 +1382,23 @@ And on resume, the caller should check for the condition again, as it is very mu
 
 So this is why we check for the condition in a for loop here.
 
-![alt text](image-88.png)
+![alt text](./images/image-88.png)
 
 Signal, signal wakes up one goroutine that was waiting on a condition. The signal finds a goroutine that was waiting the longest and notifies that goroutine. And it is allowed, but not required for the caller to hold the lock during this call.
 
-![alt text](image-89.png)
+![alt text](./images/image-89.png)
 
 Broadcast, broadcast wakes up all the goroutine that were waiting on the condition, and again, it is allowed, but it is not required for the caller to hold the lock during this call.
 
 Let us look into an example, we have a goroutine G2 which needs to wait for the shared resource to be populated before proceeding with its processing.
 
-![alt text](image-90.png)
+![alt text](./images/image-90.png)
 
 We create a conditional variable with the constructor NewCond, passing it the mutex as the input. Here we have our shared resource, this is our goroutine and we take the lock for the entire duration of our processing. We check for the condition, whether they shared resources populated, if not, we make a call to the wait. Wait implicitly releases the lock and suspends our goroutine.
 
 Now the producer goroutine comes along.
 
-![alt text](image-91.png)
+![alt text](./images/image-91.png)
 
 It acquires a lock, populates the shared resource, and sends a signal to the consumer goroutine and then it releases the lock.
 
@@ -1408,7 +1408,7 @@ So this is how the wait and signal mechanism works.
 
 If there are multiple goroutines, waiting on a condition, then we use broadcast.
 
-![alt text](image-92.png)
+![alt text](./images/image-92.png)
 
 The broadcast will send a signal to all the goroutines that were waiting on the condition. So in this way, we are able to coordinate the execution of the goroutines, when they need to wait on an occurrence of a condition or an event.
 
@@ -1434,7 +1434,7 @@ Pool is commonly used to constrain the creation of expensive resources like the 
 
 We will maintain a pool of fixed number of instances of the resource and those resources from the pool will be reused rather than creating new instances each time whenever the caller requires them.
 
-![alt text](image-94.png)
+![alt text](./images/image-94.png)
 
 The caller, calls the get method, whenever it wants access to the resource. And this method will first check, whether there is any available instance within the pool.
 
@@ -1444,7 +1444,7 @@ If not, then a new instance is created which is returned to the caller.
 
 When finished with the usage, the caller, calls the put method, which places the instance back to the pool, which can be reused by other processes.
 
-![alt text](image-95.png)
+![alt text](./images/image-95.png)
 
 In this way, you can place a constraint on the creation of expensive resources.
 
@@ -1458,7 +1458,7 @@ But they do not prevent us from making mistakes, so the code that we write needs
 
 Go provides race detector tool, for finding race conditions in Go code. Race detector is integrated with other Go tools.
 
-![alt text](image-96.png)
+![alt text](./images/image-96.png)
 
 The binary built needs to be race enabled, to run a race tool.
 
@@ -1482,7 +1482,7 @@ So we cannot use a such in production, but integration test and the load test ar
 
 Go's concurrency primitives makes it easy to construct streaming pipelines.
 
-![alt text](image-97.png)
+![alt text](./images/image-97.png)
 
 That enables us to make an efficient use of the I/O and the multiple CPU cores available on the machine, to run our computation faster. Pipelines are often used to process streams or batches of data.
 
@@ -1490,7 +1490,7 @@ Pipeline is a series of stages that are connected by the channels, where each st
 
 A goroutine takes the data from an in-bound channel, performs an operation on it and sends the data on the out-bound channel, that can be used by the next stage.
 
-![alt text](image-98.png)
+![alt text](./images/image-98.png)
 
 By using pipelines, we can separate the concerns of each stage, and process individual stages concurrently.
 
@@ -1498,19 +1498,19 @@ Stages could consume and return the same type.
 
 For example, a square stage can take, receive only channel of type int and return receive only channel of type int as output.
 
-![alt text](image-99.png)
+![alt text](./images/image-99.png)
 
 This enables the composability of the pipeline.
 
 For example, a generator stage can return a receiver only channel of type int, which a square stage can take as input, and we can compose the output of the square stage as input to another square stage.
 
-![alt text](image-100.png)
+![alt text](./images/image-100.png)
 
 Here is an example of a image processing pipeline.
 
 This pipeline takes a list of images as input and generates thumbnail images that is then stored on the disk or transferred to a storage bucket in the cloud.
 
-![alt text](image-101.png)
+![alt text](./images/image-101.png)
 
 This pipeline has three stages. In stage one, we are running goroutine G1, which is generating a list of images to be processed.
 
@@ -1528,7 +1528,7 @@ G3 is only concerned about storing the images. and all these stages can run in p
 
 If there are too many images to be processed, then we can scale up the number of goroutines in stage 2 to process the images faster.
 
-![alt text](image-102.png)
+![alt text](./images/image-102.png)
 
 Let us summarize,
 
@@ -1542,7 +1542,7 @@ Sometimes a stage in our pipeline can become more computationally intensive and 
 
 For example, in this pipeline, G2 is a computationally intensive stage.
 
-![alt text](image-103.png)
+![alt text](./images/image-103.png)
 
 It takes time for G2 to output values on the channel, channel 2.
 
@@ -1557,13 +1557,13 @@ The term fan out is used when we start multiple goroutines to handle the input f
 Multiple goroutines read data from the same channel.
 
 By fanning out, we can distribute the work amongst a group of worker goroutine to parallelize the CPU usage and the I/O usage.
-![alt text](image-104.png)
+![alt text](./images/image-104.png)
 
 The term fan-in is used to describe the process of combining the multiple results into one channel.
 
 In this diagram, the goroutines G2a, G2b and G2c are reading the data from the same channel, Channel 1 and output, the computational result on the individual channels, channel 2a, 2b and 2c.
 
-![alt text](image-105.png)
+![alt text](./images/image-105.png)
 
 Merge goroutines Ma, Mb and Mc will collect that output from multiple channels and write them to a single channel Channel 2, in this way, by parallelizing the computationally intensive stage, we can speed up the computation and the pipeline is going to run faster.
 
@@ -1586,7 +1586,7 @@ There is a pattern in our pipeline functions that we have been coding till now.
 
 The upstream stages closes their outbound channel when they have sent all their values downstream.
 
-![alt text](image-106.png)
+![alt text](./images/image-106.png)
 
 The downstream stages keep receiving values from the inbound channel until the channel is closed.
 
@@ -1594,7 +1594,7 @@ This pattern allows each receiving stage to be written as range loop.
 
 All the goroutines will exit, once all the values have been sent successfully downstream.
 
-![alt text](image-107.png)
+![alt text](./images/image-107.png)
 
 For example, in the merge function that we coded in our last exercise, we waited for all the goroutines to terminate and then we closed our merged out channel.
 
@@ -1610,7 +1610,7 @@ In either case, the receiver should not have to wait for all the remaining value
 
 And we want the earlier stage to stop producing the values that the later stage don't need.
 
-![alt text](image-108.png)
+![alt text](./images/image-108.png)
 
 If the main goroutine, just receives one value and abandons the inbound channel from merge, then the goroutines in the merge stage will get blocked on the channel send operation, in-turn, the goroutines in the square and the generator stage will also get blocked on their channels send operation.
 
@@ -1624,7 +1624,7 @@ On receiving the signal on the done channel, the goroutines needs to abandon the
 
 We use select to make the send and receive operation on the channel preempted by multiplexing with receive on done channel.
 
-![alt text](image-109.png)
+![alt text](./images/image-109.png)
 
 So the goroutines that are blocked on the channel send operation, if they receive a signal on the done channel, then they will unblock and return from the goroutine function.
 
@@ -1634,7 +1634,7 @@ So the goroutines that are blocked on the channel send operation, if they receiv
 
 ## Context Package:
 
-![alt text](image-110.png)
+![alt text](./images/image-110.png)
 
 In Go servers, each incoming request is handled in its own goroutine.
 
@@ -1654,7 +1654,7 @@ It provides an API for cancelling branches of the call graph and it provides a d
 
 Here is an example which shows how the context propagation could happen through the call graph.
 
-![alt text](image-111.png)
+![alt text](./images/image-111.png)
 
 The main routine creates a root context, it derives a cancellable context from the root context and passes that to function 1 and function 2. function 1 derives a new context from the cancellable context and sets a time out of one second and passes that to function 3.
 
@@ -1666,7 +1666,7 @@ This allows the composability of the context and individual call graph can have 
 
 The core of the context package is a context type.
 
-![alt text](image-112.png)
+![alt text](./images/image-112.png)
 
 The done method returns a channel that is closed when the context is cancelled or timed out. The error method returns an error, indicating why the context was cancelled. The deadline method can be used to check if a context will be cancelled after a certain time.
 
@@ -1677,7 +1677,7 @@ A context is safe for simultaneous use by multiple goroutines.
 We can pass a single context to any number of goroutines and cancel the context to send a signal to all the goroutines to abandon their work and terminate.
 
 Now, let us look into functions that are provided by the context package to create a new context. Background and TODO.
-![alt text](image-113.png)
+![alt text](./images/image-113.png)
 
 Background returns and empty context, it is the root of any context tree.
 
@@ -1707,14 +1707,14 @@ Context package provides functions to add cancellation behavior.
 
 We have functions like with cancel, with timeout and with deadline.
 
-![alt text](image-114.png)
+![alt text](./images/image-114.png)
 
 These functions generate new instance of the context and add options relative to the behavior of these functions.
 
 The derived context is passed to the child goroutine, to facilitate their cancellation.
 
 withcancel() function takes parent context as the input, we could pass the output of the background function as input to withcancel function.
-![alt text](image-115.png)
+![alt text](./images/image-115.png)
 
 withcancel function is going to return a copy of the parent context with a new done channel and a cancel function. cancel function is used to close the context's done channel.
 
@@ -1732,7 +1732,7 @@ Cancel function, can be called from multiple goroutines simultaneously after the
 
 Here is an example of using withcancel function, in the parent goroutine, we are creating a root context using the background function, we are passing that as an input to the withcancel function. withcancel function is creating a cancellable context.
 
-![alt text](image-116.png)
+![alt text](./images/image-116.png)
 
 We are passing that cancellable context to the generator function, the generator function is creating a child goroutine.
 
@@ -1752,13 +1752,13 @@ With deadline function, takes the parent context and clock time as the input.
 
 And it returns a new context which closes its channel when the machines clock time advances past the given deadline.
 
-![alt text](image-117.png)
+![alt text](./images/image-117.png)
 
 In this example, we are setting a deadline, five milliseconds past the current time and we are passing that deadline as the input to the with deadline function.
 
 With deadline function is returning a context whose done channel is going to get closed five milliseconds from the current time.
 
-![alt text](image-118.png)
+![alt text](./images/image-118.png)
 We are seeing a code snippet from the source code, which shows the internal implementation of the with deadline function.
 
 with deadline function is creating a cancel context with the parent context that is passed in as the input.
@@ -1768,7 +1768,7 @@ And it is using time after function to spin a goroutine, which cancels the conte
 So with deadline function is using the cancel context and time after function to close the done channel on deadline expiry.
 
 Now, let us come back to the user program, a child goroutine can use the deadline method in the context to know if the deadline is set for the context.
-![alt text](image-119.png)
+![alt text](./images/image-119.png)
 
 The deadline method returns a boolean as a second return value, whose value is going to be true if the deadline is set else it's going to be false.
 
@@ -1782,7 +1782,7 @@ child goroutine can use select to multiplex any channel operation with receive o
 
 We can set a timeout on an operation using with timeout function.
 
-![alt text](image-120.png)
+![alt text](./images/image-120.png)
 
 With timeout function takes the parent context and the time duration as the input.
 
@@ -1833,7 +1833,7 @@ And it returns a copy of the parent context in which the value is associated wit
 The provided key must be comparable, we should define our own user defined data type for the keys.
 
 In this example, in the parent goroutine, we are defining a user defined data type, user ID type.
-![alt text](image-121.png)
+![alt text](./images/image-121.png)
 
 We are creating a context withValue by associating the key, user ID key with value "Jane".
 
@@ -1866,14 +1866,14 @@ ctx.Value() method is used to extract the value, given a key from the context.
 In this module, we will look into Go idioms for using the context package. Any incoming request to a server should create a context.
 
 The time to create the context is always as early as possible in the processing of a request or a task. We can create a top-level context with background function, in the main routine. The http request value already contains the context, in this case, we can use the context contained in the http request and it is a go idiom to use the variable name as ctx for all context values.
-![alt text](image-122.png)
-![alt text](image-123.png)
+![alt text](./images/image-122.png)
+![alt text](./images/image-123.png)
 
 The outgoing calls to a server should accept a context, the higher level calls needs to tell the lower level calls how long they are willing to wait.
 
 In this example, we are sitting a time out of 100 millisecond and associating with the context with the http request and passing that request to http default client Do method.
 
-![alt text](image-124.png)
+![alt text](./images/image-124.png)
 
 If we don't get the response from the server for the http request within the timeout, then http default client Do method, respect the cancellation signal on the timer expiry and returned with the error message.
 
@@ -1885,7 +1885,7 @@ Any change to the context value creates a new context value which is then propag
 
 Here we have an example,
 
-![alt text](image-125.png)
+![alt text](./images/image-125.png)
 
 in the main routine, we are creating a cancellable context and we are passing that to the child goroutine. child goroutine adds the timeout and passes that to the function, as we make the changes to the context value, a new context value is created, which is then propagated forward, as we add or modify the context, the functions called before are not affected as the context is passed by value.
 
@@ -1941,9 +1941,9 @@ Sending the response to the client and
 
 the idle timeout allowed between the request from the client.
 
-![alt text](image-126.png)
+![alt text](./images/image-126.png)
 
-![alt text](image-127.png)
+![alt text](./images/image-127.png)
 The read timeout covers the time from when the connection is accepted to when the request body is fully read.
 
 The read header timeout is the amount of time allowed to read the request headers.
@@ -1958,7 +1958,7 @@ Idle time out is the maximum amount of time to wait for the next request, when t
 
 We can set the connection timeouts explicitly using the server.
 
-![alt text](image-128.png)
+![alt text](./images/image-128.png)
 
 And we should set these time outs, when we are dealing with untrusted clients and the networks, so that a client is not allowed to hold up a connection, by being slow to write or to read.
 
@@ -1967,19 +1967,19 @@ We also need to control the amount of time it takes for our handler functions to
 The timeout that we saw previously provides a means for setting connection deadlines at a network connection level.But http handler functions are unaware of these timeouts. As a result, they run to the completion, consuming the resources even after the timer expires.
 
 Let us look into an example and see what I mean. Here we have a http server, We are using postgresql to simulate a slow query.
-![alt text](image-129.png)
+![alt text](./images/image-129.png)
 
 We are starting a server on localhost port 8000, we are setting write time out of two seconds, the write timeout covers the time from the end of the request header read to the end of the response write, that is, it covers the lifespan of the serve http method, that is returned by the http handler function.
-![alt text](image-130.png)
+![alt text](./images/image-130.png)
 
 We are setting the http handler function as slow handler.
 
 In the slow handler, we are calling slow query,where we are simulating a query to take five seconds to complete, once the query is complete, we are sending the response OK to the client.
 
-![alt text](image-131.png)
+![alt text](./images/image-131.png)
 
 So in this example, we are setting the write timeout as two seconds, but our handler function is taking five seconds to complete its processing.
-![alt text](image-132.png)
+![alt text](./images/image-132.png)
 
 So what do we expect the output to be?
 
@@ -1993,7 +1993,7 @@ We are waiting for the response.
 
 The response is empty, but it took five seconds to get the response.
 
-![alt text](image-133.png)
+![alt text](./images/image-133.png)
 
 While the server knows that we cannot write the response after two seconds, the handler function still ran to the completion and took five seconds to return the response, when the timeout is expired we need a way to stop the handler function from further processing and end the request to free the system resources.
 
@@ -2007,13 +2007,13 @@ Here we are setting the write timeout as two seconds and the handler timeout as 
 
 The third argument is a string, which is the message returned to the client on the timer expiry.
 
-![alt text](image-134.png)
+![alt text](./images/image-134.png)
 
 If the input handler runs longer than its time limit, then the handler sends 503 service unavailable error and a html error message to the client. Let us return to our exercise and use timeout handler function.
 
 We come to the server.
 
-![alt text](image-135.png)
+![alt text](./images/image-135.png)
 
 Instead of http handler function, we use http timeout handler, we pass the handler function as the first argument.
 
@@ -2023,7 +2023,7 @@ We set the timeout message as time out. Let us execute this.
 
 Let us start curl with option -i, this provides us information on the http error.
 
-![alt text](image-136.png)
+![alt text](./images/image-136.png)
 
 Now we are seeing that we are getting http response at the time out of one second, we are getting the error message 503 service unavailable and the timeout message.
 
@@ -2039,14 +2039,14 @@ The request type provides a context function which returns the request context. 
 
 We are looking at a code snippet from Go source code, from net http package, server.go file.
 
-![alt text](image-137.png)
+![alt text](./images/image-137.png)
 
 We are looking at the internal implementation of the serve http method, in the timeout handler.
 
 serve http method gets called to respond to the http request, which in turn calls our handler function. This function is creating a context and setting a time out to the value that we specify in the timeout handler.
 
 And then it is setting the context as a request context, so the done channel in the request context
-![alt text](image-138.png)
+![alt text](./images/image-138.png)
 
 will get closed on that timer expiry.
 
@@ -2056,7 +2056,7 @@ This way, we can propagate the timeout awareness to our handler function. Let us
 
 Let us come to the slow handler.
 
-![alt text](image-139.png)
+![alt text](./images/image-139.png)
 
 Let us retrieve the context from the request type.
 
@@ -2065,11 +2065,11 @@ And slow query is going to take the first argument as the context.
 We use the context aware database API to execute the query, we pass the context as input, when the context's done channel is closed, the database terminates the running query and returns with an error message.
 
 We come to the main routine, in the main routine, we're using Ping method to verify the database connection.
-![alt text](image-140.png)
+![alt text](./images/image-140.png)
 
 We could use the context aware ping method here, so that we can set a time out for the ping operation.
 
-![alt text](image-141.png)
+![alt text](./images/image-141.png)
 
 We create a context, with timeout.
 
@@ -2083,8 +2083,8 @@ And we use the context aware ping method and we pass the context as the input.
 
 So if the database connection verification hangs for some reason, then the ping method can return with an error, on timeout expiry.
 
-![alt text](image-142.png)
-![alt text](image-143.png)
+![alt text](./images/image-142.png)
+![alt text](./images/image-143.png)
 
 Now we are getting the response on timeout, we are getting 503 server unavailable and the error message time out and our database query also got terminated with an error, on time timeout, thereby freeing up the resources.
 
@@ -2102,7 +2102,7 @@ Which allows the handler functions and other I/O operations to terminate their a
 
 Let us start with an example.
 
-![alt text](image-144.png)
+![alt text](./images/image-144.png)
 
 Here we have a program in which we are comparing the density of metals. The metal structure has two fields, mass and volume. It has method density, which calculates the density of metals, using the formula mass divided by volume and it returns the value.
 
@@ -2129,7 +2129,7 @@ This is where the interfaces comes into picture.
 The concrete type in our example, metal and gas have a common behavior density.
 
 So we can define an abstract type, dense, as an interface, which defines the behavior density with its methods signature.
-![alt text](image-145.png)
+![alt text](./images/image-145.png)
 
 In our utility function is denser, instead of the concrete type pointer the metal, we can use the interface type dense, that guarantees that the concrete types, that are passed in as input will have the method density, with the signature as defined in the interface.
 
@@ -2137,19 +2137,19 @@ So is denser, function, can use the method density from the parameters that are 
 
 When we call the is denser function, we can only pass the variables of the concrete type that possesses the methods defined in the interface dense.
 
-![alt text](image-146.png)
+![alt text](./images/image-146.png)
 
 But how is the interface is able to dynamically dispatch to the correct method and the receiver value in the runtime?
 
 Type is a compile time property.
 
-![alt text](image-147.png)
+![alt text](./images/image-147.png)
 
 When we assign an address of gold variable to a pointer of type metal, we can call the metal density, which in-turn calls the method defined for that type metal, with the receiver value of gold.
-![alt text](image-148.png)
+![alt text](./images/image-148.png)
 
 But when we assign the address to the value of the interface type and call the density method, then how is the interface able to dynamically dispatch to the current method and the receiver value?
-![alt text](image-149.png)
+![alt text](./images/image-149.png)
 
 Let us look into how interfaces work.
 
@@ -2161,27 +2161,27 @@ When we declare a variable of type interface, dynamic type and the dynamic value
 
 When we assign a value, that is pointer to variable gold, the interface dynamic type is set to type descriptor that is pointer type of metal.
 
-![alt text](image-150.png)
+![alt text](./images/image-150.png)
 
 The interface dynamic value is assigned the reference to the metal structure, which represents the values assigned to the gold variable.
-![alt text](image-151.png)
+![alt text](./images/image-151.png)
 
 When we call a method through an interface, it uses dynamic dispatch, the compiler would have generated code to obtain the address of the method from the type descriptor.
 
 So in the run time an indirect call can be made from that address.
-![alt text](image-152.png)
+![alt text](./images/image-152.png)
 
 The receiver argument for the call is a copy of the interfaces dynamic value.
 
 So when we make the method call through the interface, it becomes equivalent to calling the method from the value of that type.
 
-![alt text](image-153.png)
+![alt text](./images/image-153.png)
 
 Similar things happen when we assign the value of gas type to the interface, dynamic type is set to pointer to gas type, dynamic value points to the value of the oxygen variable.
-![alt text](image-154.png)
+![alt text](./images/image-154.png)
 
 When we call the density method, it uses the address of the method from the type descriptor to make an indirect call to the method which uses the dynamic value as its receiver value.
-![alt text](image-155.png)
+![alt text](./images/image-155.png)
 
 The purpose of interface is, interfaces enables us to encapsulate the logic within the methods of the user defined type.
 
@@ -2189,7 +2189,7 @@ Each of the data type metal and gas has its own formula to calculate the density
 
 With a guarantee on the behavior of the underlying concrete type so that we can write versatile code as higher level functions are not tied to the details of a particular implementation.
 
-![alt text](image-156.png)
+![alt text](./images/image-156.png)
 
 ## Interface Implicit
 
@@ -2198,7 +2198,7 @@ With a guarantee on the behavior of the underlying concrete type so that we can 
 Implicit interfaces leads to good design.
 
 Interfaces are satisfied implicitly. In Java we would declare a class as implements an interface explicitly,
-![alt text](image-157.png)
+![alt text](./images/image-157.png)
 
 but in Go there is no such explicit syntax. There is no implements keyword, rather, user defined types just need to possess the method defined in the interface to be considered an instance of the interface.
 
@@ -2224,7 +2224,7 @@ A good rule of thumb for the interface design is to ask only for what is needed.
 
 In this module, we will look into using the interfaces from the standard library.
 
-![alt text](image-158.png)
+![alt text](./images/image-158.png)
 
 Here is an example, we are calling the function Fprintf, on the first call we are passing os.Stdout as input, which is of type os.File to print the string "hello" on the standard output.
 
@@ -2235,13 +2235,13 @@ Fprintf is able to take values of different type as input and is able to perform
 Let us see.
 
 We are looking at the implementation of Fprintf in fmt package.
-![alt text](image-161.png)
+![alt text](./images/image-161.png)
 
 Fprintf takes io.Writer interface type as the first parameter.
 
 io package defines the writer interface, it contains the method signature for write.
 
-![alt text](image-163.png)
+![alt text](./images/image-163.png)
 
 os package, file type, provide an implementation for the write method, with the signature as specified in the writer interface.
 
@@ -2253,7 +2253,7 @@ In this implementation, it copies the slice of bytes passed in as input into the
 
 We come back to the Fprintf implementation, Fprintf calls the write method on the interface value, trusting that the callers of Fprintf, can only pass the concrete types that implements the write method, with the same signature as specified in the writer interface.
 
-![alt text](image-164.png)
+![alt text](./images/image-164.png)
 
 So the interface definition acts as a contract, Fprintf does not need to assume any representation of the interface value, whether the value is writing to a file or to memory, it just relies on the behavior guaranteed by the io writer interface, that the write method is going to be there and it can call it, with the signature as specified in the interface definition.
 
@@ -2267,20 +2267,20 @@ Reader interface, a reader represents any type from which we can read bytes.
 
 closer interface, a closer is any value that we can close, such as a file or network connection.
 
-![alt text](image-165.png)
+![alt text](./images/image-165.png)
 
 We can embed existing interfaces to create new interface types, we have read writer interface, which has embedded definitions of reader and writer interface.
 
-![alt text](image-166.png)
+![alt text](./images/image-166.png)
 
 read write closer interface has embedded definition of reader writer closer interfaces.
 
-![alt text](image-167.png)
+![alt text](./images/image-167.png)
 
 So for a type to satisfy, read write closer interface, it has to possess the method defined in reader interface, writer to interface and closer interface.
 
 Other popular interface is stringer interface, which is defined in fmt package.
-![alt text](image-168.png)
+![alt text](./images/image-168.png)
 
 Stringer interface provides a way for the types to control how their values are going to be printed.
 
@@ -2309,7 +2309,7 @@ bytes.Buffer on the other hand, satisfies, io.Reader, Writer and io.ReadWriter i
 The assignable rule for the interface value is, an expression can only be assigned to an interface only if its type satisfies the interface.
 
 In this example, we are declaring a variable of type io.Writer,
-![alt text](image-169.png)
+![alt text](./images/image-169.png)
 
 we can assign os.Stdout as it is of type os.File, which implements the write method.
 
@@ -2323,11 +2323,11 @@ An interface conceals the concrete type and value and interface wraps the concre
 
 For example, os.File, has the implementation for write and close methods, so from the instance of the os.File such as os.Stdout, we can call the write and close methods.
 
-![alt text](image-170.png)
+![alt text](./images/image-170.png)
 
 In this example, we see that we have a utility function printer which takes a file handle of type os.File and string as input, its intended purpose is only to write the string to the file.
 
-![alt text](image-171.png)
+![alt text](./images/image-171.png)
 
 But it does not stop for someone to add the code, to close the file handle, this breaks the intention for which the function was created, resulting in bad code.
 
@@ -2337,13 +2337,13 @@ If in the printer function instead of os.File.
 
 If it were to take io.Writer the interface as input, then we can limit the method exposed to the printer function to only the write method.
 
-![alt text](image-172.png)
+![alt text](./images/image-172.png)
 
 If someone were to try to call the close method, the compiler will give an error, io.Writer has no field or method close.
 
 In this way, we can conceal the concrete type and the value it holds and expose only limited functionality to where it is required.
 
-![alt text](image-173.png)
+![alt text](./images/image-173.png)
 
 This leads to cleaner code and we know which function can do what.
 
@@ -2357,27 +2357,27 @@ An interface wraps the concrete type. Only the method defined by the interface a
 
 Let us consider an example, net package provides a definition for the types tcp conn and udp conn, both of them satisfy the conn interface, which defines the basic methods like read write and close.
 
-![alt text](image-174.png)
+![alt text](./images/image-174.png)
 
 Apart from those methods, tcp conn and udp conn have their own methods, one of them is closeWrite method for this tcp conn,
 
-![alt text](image-175.png)
+![alt text](./images/image-175.png)
 
 and udp conn does not have this method as this method is specific for tcp protocol.
 
 Suppose in our application we have a function shutdownWrite, which takes net conn interface as input, this function is supposed to call the close write method to shut down the write side of the tcp connection.
 
-![alt text](image-176.png)
+![alt text](./images/image-176.png)
 
 The interface value conn passed as input could contain udp conn value or tcp conn value.
 
 Since net conn interface type does not include a close write method, we cannot call close write method directly from the interface value.
 
-![alt text](image-177.png)
+![alt text](./images/image-177.png)
 
 But we could call close write method, from the value of net tcp conn type as net tcp conn type, implements the close write method.
 
-![alt text](image-178.png)
+![alt text](./images/image-178.png)
 
 So what is needed is, we need a way to extract the underlying concrete value from the interface value.
 
@@ -2385,7 +2385,7 @@ If the underlying concrete value is of type net tcp conn, then we should be able
 
 But if it is of type, udp conn, then we need a way to handle that scenario as the net udp conn does not have the method close write.
 
-![alt text](image-179.png)
+![alt text](./images/image-179.png)
 
 This is where type assertion comes into play.
 
@@ -2395,7 +2395,7 @@ It is used to extract the dynamic value from the interface value.
 
 type assertion can be done using two syntax.
 
-![alt text](image-180.png)
+![alt text](./images/image-180.png)
 
 This is one of them, where X is an expression of the interface type and T is a concrete type, whose value we want to extract.
 
@@ -2405,7 +2405,7 @@ If that fails, then the operation is going to panic.
 
 To guard against panic, we can use this syntax, which returns a second return value, which is boolean, which indicates whether the specified type is contained in the interface value or not.
 
-![alt text](image-181.png)
+![alt text](./images/image-181.png)
 
 If type assertion is successful, then the returned value for ok will be true and the value of the variable V will be set to the dynamic value.
 
@@ -2415,7 +2415,7 @@ In this syntax, there won't be any one time panic, even if the type assertion fa
 
 Let us come back to our shutdown write function, let us use type assertion on the interface value conn.
 
-![alt text](image-182.png)
+![alt text](./images/image-182.png)
 
 We specify the concrete type, pointer to net tcp conn, within the parenthesis we receive the two returned values.
 
@@ -2437,7 +2437,7 @@ type assertion is useful to apply distinguished operation of the type.
 
 We see empty interfaces, used a lot of places in Go source code.
 
-![alt text](image-183.png)
+![alt text](./images/image-183.png)
 
 Empty interface type places no demand on the types that satisfies it. There are no methods to implement. so we can assign any value to the empty interface.
 
@@ -2445,11 +2445,11 @@ The functions println and errorf take empty interface as parameter, so we can pa
 
 Let us see an example. In this example, we are passing integer type and string type values to the describe function that takes empty interface as its parameter.
 
-![alt text](image-184.png)
+![alt text](./images/image-184.png)
 
 In our function describe, we have used type switch.
 
-![alt text](image-185.png)
+![alt text](./images/image-185.png)
 
 Type switch is used to discover the dynamic type of an interface variable. Types switch uses the syntax of type assertion with the keyword type inside the parentheses.
 
@@ -2459,7 +2459,7 @@ In our first call to describe function with integer value, 42, int case in type 
 
 In our second call, to the describe function with string hello, string case in type switch gets executed and we get the output v is string whose length is five.
 
-![alt text](image-186.png)
+![alt text](./images/image-186.png)
 
 Empty interface gives lot of flexibility, but there is a downside as well.
 
