@@ -158,7 +158,7 @@ Let us consider an example with thread 1 and thread 2 are running concurrently.
 
 and here they are trying to increment the value of a global variable i.
 
-![alt text](image.png)
+![alt text](./images/image999.png)
 
 The increment operation is not atomic, at the code level
 
@@ -1449,3 +1449,1028 @@ When finished with the usage, the caller, calls the put method, which places the
 In this way, you can place a constraint on the creation of expensive resources.
 
 ### Exercise Channel ownership 01-exercise/04-sync/41-pool
+
+## Race detector
+
+Go's concurrency mechanisms makes it easy to write clean concurrent code.
+
+But they do not prevent us from making mistakes, so the code that we write needs to be tested for any race condition.
+
+Go provides race detector tool, for finding race conditions in Go code. Race detector is integrated with other Go tools.
+
+![alt text](image-96.png)
+
+The binary built needs to be race enabled, to run a race tool.
+
+In the binary, the compiler inserts code to record all memory access.
+
+And the runtime library watches for the unsynchronized access to the shared memory, when the racy behavior is detected, a warning is printed.
+
+And we need to note that the race enabled binary can be 10 times slower and consume 10 times more memory.
+
+So we cannot use a such in production, but integration test and the load test are good candidates for testing with binary with race enabled.
+
+### Exercise Channel ownership 01-exercise/05-race
+
+### Exercise Channel ownership 01-exercise/07-exercise-web-crawler Sequenctial
+
+### Exercise Channel ownership 01-exercise/07-exercise-web-crawler Concurrent
+
+## Concurrency Patterns
+
+## Pipeline
+
+Go's concurrency primitives makes it easy to construct streaming pipelines.
+
+![alt text](image-97.png)
+
+That enables us to make an efficient use of the I/O and the multiple CPU cores available on the machine, to run our computation faster. Pipelines are often used to process streams or batches of data.
+
+Pipeline is a series of stages that are connected by the channels, where each stage is represented by a goroutine.
+
+A goroutine takes the data from an in-bound channel, performs an operation on it and sends the data on the out-bound channel, that can be used by the next stage.
+
+![alt text](image-98.png)
+
+By using pipelines, we can separate the concerns of each stage, and process individual stages concurrently.
+
+Stages could consume and return the same type.
+
+For example, a square stage can take, receive only channel of type int and return receive only channel of type int as output.
+
+![alt text](image-99.png)
+
+This enables the composability of the pipeline.
+
+For example, a generator stage can return a receiver only channel of type int, which a square stage can take as input, and we can compose the output of the square stage as input to another square stage.
+
+![alt text](image-100.png)
+
+Here is an example of a image processing pipeline.
+
+This pipeline takes a list of images as input and generates thumbnail images that is then stored on the disk or transferred to a storage bucket in the cloud.
+
+![alt text](image-101.png)
+
+This pipeline has three stages. In stage one, we are running goroutine G1, which is generating a list of images to be processed.
+
+It passes those image paths to the stage 2, via the channel 1.
+
+In stage 2, we are running goroutine G2, it receives the paths of images on channel 1 and processes those images and generates thumbnail images, and outputs the thumbnail image information to the channel 2
+
+In stage 3, we are running goroutine G3, that is receiving the thumbnail image information on channel 2, and it stores the thumbnail images on the disk or transfers those images to a storage bucket in the cloud.
+
+So what we see here is, we have separated the concerns into different stages,
+
+G1 is only concerned about getting the list of images to processes. G2 is only concerned about image processing.
+
+G3 is only concerned about storing the images. and all these stages can run in parallel, utilizing the multiple cores available on the machine.
+
+If there are too many images to be processed, then we can scale up the number of goroutines in stage 2 to process the images faster.
+
+![alt text](image-102.png)
+
+Let us summarize,
+
+In this module, we saw what are pipelines used for. Pipelines are used to process streams or batches of data. Pipelines enables us to make an efficient use of the I/O and multiple CPU cores to run our computation faster. Pipeline is a series of stages connected by channels, and each stage is represented by a goroutine.
+
+### Exercise Channel ownership 01-exercise/02-pipeline/01-pipeline
+
+## Fan-out, Fan-in
+
+Sometimes a stage in our pipeline can become more computationally intensive and it can take some time to produce output.
+
+For example, in this pipeline, G2 is a computationally intensive stage.
+
+![alt text](image-103.png)
+
+It takes time for G2 to output values on the channel, channel 2.
+
+As a result, the goroutines, G3 and G4 can become blocked while waiting for our expensive stage G2 to send values.
+
+So the question is, can we break a computationally intensive stage into multiple instances of the goroutines that can run in parallel to speed up the processing?
+
+That's where the concept of fan out and fan in comes into the picture.
+
+The term fan out is used when we start multiple goroutines to handle the input from the channel.
+
+Multiple goroutines read data from the same channel.
+
+By fanning out, we can distribute the work amongst a group of worker goroutine to parallelize the CPU usage and the I/O usage.
+![alt text](image-104.png)
+
+The term fan-in is used to describe the process of combining the multiple results into one channel.
+
+In this diagram, the goroutines G2a, G2b and G2c are reading the data from the same channel, Channel 1 and output, the computational result on the individual channels, channel 2a, 2b and 2c.
+
+![alt text](image-105.png)
+
+Merge goroutines Ma, Mb and Mc will collect that output from multiple channels and write them to a single channel Channel 2, in this way, by parallelizing the computationally intensive stage, we can speed up the computation and the pipeline is going to run faster.
+
+Let us summarize,
+in fan-out, we start multiple goroutines to read data from a single channel, which enablesus to distribute the work amongst a group of goroutines to parallelize the CPU usage, and I/Ousage.
+
+This helps the computationally intensive stage to run faster and in-turn the pipeline is going to run faster.
+
+We saw what is fan-in, fan-in is a process of combining multiple results into one channel.
+
+We create a merge goroutines to read data from multiple input channels and send the data to a single output channel.
+
+### Exercise Channel ownership 01-exercise/02-pipeline/02-pipeline
+
+## Cancelling GoRoutines
+
+## Pattern in our Pipelines
+
+There is a pattern in our pipeline functions that we have been coding till now.
+
+The upstream stages closes their outbound channel when they have sent all their values downstream.
+
+![alt text](image-106.png)
+
+The downstream stages keep receiving values from the inbound channel until the channel is closed.
+
+This pattern allows each receiving stage to be written as range loop.
+
+All the goroutines will exit, once all the values have been sent successfully downstream.
+
+![alt text](image-107.png)
+
+For example, in the merge function that we coded in our last exercise, we waited for all the goroutines to terminate and then we closed our merged out channel.
+
+That enabled the main goroutine to exit from the range loop.
+
+But in real pipelines, stages do not always receive all the inbound values.
+
+The receiver may only need a subset of values to make progress.
+
+Or a stage could exit early because an inbound value represented an error.
+
+In either case, the receiver should not have to wait for all the remaining values to arrive.
+
+And we want the earlier stage to stop producing the values that the later stage don't need.
+
+![alt text](image-108.png)
+
+If the main goroutine, just receives one value and abandons the inbound channel from merge, then the goroutines in the merge stage will get blocked on the channel send operation, in-turn, the goroutines in the square and the generator stage will also get blocked on their channels send operation.
+
+This leads to goroutine leak.
+
+The question is, how can we signal a goroutine to abandon what they are doing and terminate?
+
+We can send a cancellation signal to the goroutines, by passing a read-only channel to the goroutine and then closing the channel, which will send a broadcast signal to all the goroutines.
+
+On receiving the signal on the done channel, the goroutines needs to abandon their work and terminate.
+
+We use select to make the send and receive operation on the channel preempted by multiplexing with receive on done channel.
+
+![alt text](image-109.png)
+
+So the goroutines that are blocked on the channel send operation, if they receive a signal on the done channel, then they will unblock and return from the goroutine function.
+
+### Exercise Channel ownership 01-exercise/02-pipeline/03-pipeline
+
+### Exercise Channel ownership 01-exercise/02-pipeline/04-image-processing-sequential (sequetial & pipeline version)
+
+## Context Package:
+
+![alt text](image-110.png)
+
+In Go servers, each incoming request is handled in its own goroutine.
+
+The request handler often starts additional goroutines to access the back end, such as the databases and RPC services.
+
+The set of routines working on a request typically needs access to request specific values, such as the identity of the end user, authorization tokens and the request deadline.
+
+When a request is cancelled by the end user or if the request is timed out, then we want all the goroutines working on that request to exit quickly, so that the system can reclaim any resources they were using.
+
+So we need a way to propagate the request scoped data, down the call graph to all the goroutines, and we need a way to propagate cancellation signals down the call graph to all the goroutines.
+
+This is where the context package comes into play.
+
+Context package serves two primary purposes.
+
+It provides an API for cancelling branches of the call graph and it provides a databag for transporting request scoped data through the call graph.
+
+Here is an example which shows how the context propagation could happen through the call graph.
+
+![alt text](image-111.png)
+
+The main routine creates a root context, it derives a cancellable context from the root context and passes that to function 1 and function 2. function 1 derives a new context from the cancellable context and sets a time out of one second and passes that to function 3.
+
+Function 3 is supposed to complete its computation before one second or respect the timeout and return when the context is cancelled.
+
+The context at function 2, is not affected by this time out, it is still just a cancellable context as the context is passed by value.
+
+This allows the composability of the context and individual call graph can have its own properties without affecting the context of the parent call graph.
+
+The core of the context package is a context type.
+
+![alt text](image-112.png)
+
+The done method returns a channel that is closed when the context is cancelled or timed out. The error method returns an error, indicating why the context was cancelled. The deadline method can be used to check if a context will be cancelled after a certain time.
+
+The value method returns the value associated with the key in the context.
+
+A context is safe for simultaneous use by multiple goroutines.
+
+We can pass a single context to any number of goroutines and cancel the context to send a signal to all the goroutines to abandon their work and terminate.
+
+Now, let us look into functions that are provided by the context package to create a new context. Background and TODO.
+![alt text](image-113.png)
+
+Background returns and empty context, it is the root of any context tree.
+
+It is never cancelled and has no value and has no deadline.
+
+It is typically used by the main function, and it acts as a top level context for the incoming request.
+
+Now, let us look into todo function, todo also returns an empty context, but its intended purpose is to serve as a placeholder.
+
+It is used when we don't know which context to utilize or if we expect our code to be provided with the context, but the upstream code has not yet furnished one, then we use todo context as a placeholder.
+
+Let us summarize,
+
+in this module, we saw what is context package used for. Context package is used to send requests scoped values and cancellation signals across the API boundaries to all the goroutines involved in handling a request.
+
+Context package provides functions to create context.
+
+Background returns an empty context, which is used as the root of the context tree.
+
+TODO also returns an empty context, but its intended purpose is to be a placeholder until the upstream code is finalized.
+
+## Context Package for cancellation
+
+Context as such is immutable, to add behavior, we need to derive new context value from the existing ones.
+
+Context package provides functions to add cancellation behavior.
+
+We have functions like with cancel, with timeout and with deadline.
+
+![alt text](image-114.png)
+
+These functions generate new instance of the context and add options relative to the behavior of these functions.
+
+The derived context is passed to the child goroutine, to facilitate their cancellation.
+
+withcancel() function takes parent context as the input, we could pass the output of the background function as input to withcancel function.
+![alt text](image-115.png)
+
+withcancel function is going to return a copy of the parent context with a new done channel and a cancel function. cancel function is used to close the context's done channel.
+
+Closing the done channel indicates to an operation to abandon its work and return.
+
+Cancelling the context releases the resources that are associated with the context.
+
+It is very important that we call the cancel function as soon as the operation running, the context is complete.
+
+If we don't call the cancel function, then there will be a memory leak, the resources associated with the context won't be released until the current context is cancelled or the parent context is cancelled.
+
+Cancel() function does not wait for the operation to stop. It just closes the done channel and returns.
+
+Cancel function, can be called from multiple goroutines simultaneously after the first call, the subsequent call to the cancel function do not do anything, they just return.
+
+Here is an example of using withcancel function, in the parent goroutine, we are creating a root context using the background function, we are passing that as an input to the withcancel function. withcancel function is creating a cancellable context.
+
+![alt text](image-116.png)
+
+We are passing that cancellable context to the generator function, the generator function is creating a child goroutine.
+
+when we want to cancel the goroutine, we call the cancel function, cancel function is going to close the done channel in the context.
+
+In the child goroutine, we use select to multiplex any channel operation with the receive on the context done channel.
+
+On receiving the done signal, on the context then channel, the child goroutine is going to abandon its work and return with an error.
+
+The context error method returns non-nil, if the context was cancelled.
+
+#### Now, let us look into the with deadline function.
+
+We can set a deadline to an operation using the with deadline function.
+
+With deadline function, takes the parent context and clock time as the input.
+
+And it returns a new context which closes its channel when the machines clock time advances past the given deadline.
+
+![alt text](image-117.png)
+
+In this example, we are setting a deadline, five milliseconds past the current time and we are passing that deadline as the input to the with deadline function.
+
+With deadline function is returning a context whose done channel is going to get closed five milliseconds from the current time.
+
+![alt text](image-118.png)
+We are seeing a code snippet from the source code, which shows the internal implementation of the with deadline function.
+
+with deadline function is creating a cancel context with the parent context that is passed in as the input.
+
+And it is using time after function to spin a goroutine, which cancels the context after the duration of time has elapsed.
+
+So with deadline function is using the cancel context and time after function to close the done channel on deadline expiry.
+
+Now, let us come back to the user program, a child goroutine can use the deadline method in the context to know if the deadline is set for the context.
+![alt text](image-119.png)
+
+The deadline method returns a boolean as a second return value, whose value is going to be true if the deadline is set else it's going to be false.
+
+If the deadline is set, the child goroutine can evaluate if sufficient time is available to complete its job.
+
+If not, then it can just return with an error deadline exceeded.
+
+child goroutine can use select to multiplex any channel operation with receive on the done channel on receiving the signal on the done channel, the child goroutine is going to return with a context error.
+
+#### Now, let us look into with timeout function,
+
+We can set a timeout on an operation using with timeout function.
+
+![alt text](image-120.png)
+
+With timeout function takes the parent context and the time duration as the input.
+
+WithTimeout returns, a new context whose done channel gets closed after the given time duration.
+
+withTimeout is useful for setting deadline on the request to the backend service.
+
+We are seeing a code snippet from the Go source code, context.go file
+
+It shows the internal implementation of withTimeout function.
+
+We see that with timeout is actually a wrapper over with deadline, withTimeout returns, with deadline which adds the time duration that is passed in as the input to the current time and sets a deadline.
+
+The difference in using with timeout or with deadline in our program is, with timeout, the countdown begins the moment the context is created.
+
+But in with deadline, we are setting the explicit time which provides us more control over when the timer is going to expire.
+
+Now, let us summarize in this module,
+
+we saw how the context package can be used for the cancellation of an operation.
+
+Context package provides functions to derive new context values from the existing ones to add cancellation behavior.
+
+WithCancel function is used to create a cancellable context, which is then propagated forward.
+
+cancel function that is returned is used to close the done channel.
+
+On receiving the close signal, the goroutine is supposed to abandon its operation and return.
+
+We can set a deadline to an operation using withDeadline function, withDeadline function, creates a new context whose done channel gets closed when the machines clock time advances past the given deadline.
+
+Context deadline method can be used by the goroutine to know if the deadline is associated with the context.
+
+We can use the with timeout function to set time out on an operation.
+
+WithTimeout, function returns a new context, who done channel is closed after the given time duration.
+
+## Context Pakcage as Data bag
+
+In this module, we will look into how context package can be used as a data bag.
+
+Context package can be used to transport request scoped data, down the call graph, we use the function withValue() to associate request scoped values with the context.
+
+WithValue(), function takes a parent context and a key value pair as the input.
+
+And it returns a copy of the parent context in which the value is associated with the key.
+
+The provided key must be comparable, we should define our own user defined data type for the keys.
+
+In this example, in the parent goroutine, we are defining a user defined data type, user ID type.
+![alt text](image-121.png)
+
+We are creating a context withValue by associating the key, user ID key with value "Jane".
+
+And this context is passed to the child goroutine.
+
+In the child goroutine, we access the data associated with the context using the value method.
+
+We pass the key as the input and it returns an interface, we need to do type assertion to the user defined data type to get the value.
+
+Now, the variable user ID contains the value Jane.
+
+Let us summarize,
+
+the context package can be used as a data bag to carry request scoped data.
+
+WithValue() is used to associate the request scope data with the context.
+
+ctx.Value() method is used to extract the value, given a key from the context.
+
+### Exercise WithCancel 01-exercise/03-context/01-withcancel
+
+### Exercise WithDeadline 01-exercise/03-context/02-withdeatline
+
+### Exercise WithTimeout 01-exercise/03-context/03-Timeout
+
+### Exercise WithValue 01-exercise/03-context/04-Value
+
+## GO's Idioms for context package
+
+In this module, we will look into Go idioms for using the context package. Any incoming request to a server should create a context.
+
+The time to create the context is always as early as possible in the processing of a request or a task. We can create a top-level context with background function, in the main routine. The http request value already contains the context, in this case, we can use the context contained in the http request and it is a go idiom to use the variable name as ctx for all context values.
+![alt text](image-122.png)
+![alt text](image-123.png)
+
+The outgoing calls to a server should accept a context, the higher level calls needs to tell the lower level calls how long they are willing to wait.
+
+In this example, we are sitting a time out of 100 millisecond and associating with the context with the http request and passing that request to http default client Do method.
+
+![alt text](image-124.png)
+
+If we don't get the response from the server for the http request within the timeout, then http default client Do method, respect the cancellation signal on the timer expiry and returned with the error message.
+
+We need to pass a context to the function, performing any I/O operation, essentially any operation that is performing the I/O operation, should accept the context value as its first parameter and respect any timeout or the deadline configured by the caller.
+
+The context aware API's in the standard library takes context as the input, and it is a Go idiom to have the first parameter as the context value.
+
+Any change to the context value creates a new context value which is then propagated forward.
+
+Here we have an example,
+
+![alt text](image-125.png)
+
+in the main routine, we are creating a cancellable context and we are passing that to the child goroutine. child goroutine adds the timeout and passes that to the function, as we make the changes to the context value, a new context value is created, which is then propagated forward, as we add or modify the context, the functions called before are not affected as the context is passed by value.
+
+In this example, the context in the main is not affected by the timeout added in the goroutine.
+
+When a context is cancelled, all the context derived from it are also cancelled.
+
+If the parent context is cancelled, then all the children context derived from that parent context are also cancelled.
+
+We need to use TODO context only if we are unsure about which context to use, this happens if a function is not responsible for creating the top level context and we need a temporary top-level context, until we figure out where the actual context is going to come from.
+
+We need to use the context values only for request scope data, not for passing optional parameters to the functions.
+
+We should not use the context value to pass the data to a function which becomes essential for its successful execution.
+
+A function should be able to execute its logic even with an empty context value.
+
+Let us summarize,
+
+any incoming request to the server should create a context. Outgoing calls to a server should accept a context.
+
+Any function that is performing an I/O operation should accept a context value. Any change to the context value creates a new context value which is then propagated forward.
+
+If the parent context is cancelled, then all the derived context from it are also cancelled.
+
+We need to use TODO context only if we are unsure about which context to use.
+
+We need to use context values only for the request scoped data, not for passing optional parameters to the function.
+
+## HTTP Server Timeouts with Context Package
+
+In this module, we will look into the setting of http server timeout with context package.
+
+When we expose a server out to the Internet, setting timeouts is important to conserve the system resources and to protect against the DDoS attacks, we could spin separate goroutines to serve each connection.
+
+But the file descriptors are limited.
+
+Each client connection consumes a file descriptor for the network connection.
+
+If a malicious user starts as many connections as the number of file descriptors allowed in the system, then the server is going to run out of the file descriptors and it won't be able to accept any new connection.
+
+As a result, we get accept error.
+
+#### Too many open files.
+
+There are four main timeouts, exposed by the http server, we can set a timeout for reading
+
+the request body.
+
+Reading the request header.
+
+Sending the response to the client and
+
+the idle timeout allowed between the request from the client.
+
+![alt text](image-126.png)
+
+![alt text](image-127.png)
+The read timeout covers the time from when the connection is accepted to when the request body is fully read.
+
+The read header timeout is the amount of time allowed to read the request headers.
+
+The write timeout normally covers the time from the end of the request header read to the end of the response write.
+
+If the connection is https, then the write timeout also includes the packets that are written as part of the TLS handshake.
+
+And incidentally, this also includes the request header and the request body read.
+
+Idle time out is the maximum amount of time to wait for the next request, when the keep alive is enabled.
+
+We can set the connection timeouts explicitly using the server.
+
+![alt text](image-128.png)
+
+And we should set these time outs, when we are dealing with untrusted clients and the networks, so that a client is not allowed to hold up a connection, by being slow to write or to read.
+
+We also need to control the amount of time it takes for our handler functions to complete.
+
+The timeout that we saw previously provides a means for setting connection deadlines at a network connection level.But http handler functions are unaware of these timeouts. As a result, they run to the completion, consuming the resources even after the timer expires.
+
+Let us look into an example and see what I mean. Here we have a http server, We are using postgresql to simulate a slow query.
+![alt text](image-129.png)
+
+We are starting a server on localhost port 8000, we are setting write time out of two seconds, the write timeout covers the time from the end of the request header read to the end of the response write, that is, it covers the lifespan of the serve http method, that is returned by the http handler function.
+![alt text](image-130.png)
+
+We are setting the http handler function as slow handler.
+
+In the slow handler, we are calling slow query,where we are simulating a query to take five seconds to complete, once the query is complete, we are sending the response OK to the client.
+
+![alt text](image-131.png)
+
+So in this example, we are setting the write timeout as two seconds, but our handler function is taking five seconds to complete its processing.
+![alt text](image-132.png)
+
+So what do we expect the output to be?
+
+Let us execute and check. Let me start the server.
+
+Let me start another terminal, we use curl to connect to the server.
+
+And we want to know the amount of time it takes to get the response.
+
+We are waiting for the response.
+
+The response is empty, but it took five seconds to get the response.
+
+![alt text](image-133.png)
+
+While the server knows that we cannot write the response after two seconds, the handler function still ran to the completion and took five seconds to return the response, when the timeout is expired we need a way to stop the handler function from further processing and end the request to free the system resources.
+
+The question is how to efficiently timeout http handler functions.
+
+net/http package provides a middleware function, timeout handler, which returns serve http handler that runs the input handler within the given time limit.
+
+It takes the http handler as the first argument, a time duration, as a second argument, which is the time out for the handler function, the time duration needs to be set to a value less than the write time out value.
+
+Here we are setting the write timeout as two seconds and the handler timeout as one second, to allow the handler function to write error response to the client in case of time expiry.
+
+The third argument is a string, which is the message returned to the client on the timer expiry.
+
+![alt text](image-134.png)
+
+If the input handler runs longer than its time limit, then the handler sends 503 service unavailable error and a html error message to the client. Let us return to our exercise and use timeout handler function.
+
+We come to the server.
+
+![alt text](image-135.png)
+
+Instead of http handler function, we use http timeout handler, we pass the handler function as the first argument.
+
+We set the time out as one second.
+
+We set the timeout message as time out. Let us execute this.
+
+Let us start curl with option -i, this provides us information on the http error.
+
+![alt text](image-136.png)
+
+Now we are seeing that we are getting http response at the time out of one second, we are getting the error message 503 service unavailable and the timeout message.
+
+But the handler still took five seconds to complete.
+
+We need a way to propagate the timeout awareness to the handler function and to the functions down
+
+the call graph, that is where we can use context timeouts and cancellations, to propagate the cancellation signal down the call graph.
+
+The request type already has a context attached to it.
+
+The request type provides a context function which returns the request context. For any incoming request the server cancels this context when the client closes the connection, or on timeout or when the serve http method returns.
+
+We are looking at a code snippet from Go source code, from net http package, server.go file.
+
+![alt text](image-137.png)
+
+We are looking at the internal implementation of the serve http method, in the timeout handler.
+
+serve http method gets called to respond to the http request, which in turn calls our handler function. This function is creating a context and setting a time out to the value that we specify in the timeout handler.
+
+And then it is setting the context as a request context, so the done channel in the request context
+![alt text](image-138.png)
+
+will get closed on that timer expiry.
+
+We can use the request context in our handler function to check for the close signal on the context.Done channel.
+
+This way, we can propagate the timeout awareness to our handler function. Let us come back to our exercise and complete the program.
+
+Let us come to the slow handler.
+
+![alt text](image-139.png)
+
+Let us retrieve the context from the request type.
+
+And slow query is going to take the first argument as the context.
+
+We use the context aware database API to execute the query, we pass the context as input, when the context's done channel is closed, the database terminates the running query and returns with an error message.
+
+We come to the main routine, in the main routine, we're using Ping method to verify the database connection.
+![alt text](image-140.png)
+
+We could use the context aware ping method here, so that we can set a time out for the ping operation.
+
+![alt text](image-141.png)
+
+We create a context, with timeout.
+
+We create a root context with background as we are in main routine, we set the time out as 10 second.
+
+We take the returned context and the cancel function.
+
+We defer cancel the context.
+
+And we use the context aware ping method and we pass the context as the input.
+
+So if the database connection verification hangs for some reason, then the ping method can return with an error, on timeout expiry.
+
+![alt text](image-142.png)
+![alt text](image-143.png)
+
+Now we are getting the response on timeout, we are getting 503 server unavailable and the error message time out and our database query also got terminated with an error, on time timeout, thereby freeing up the resources.
+
+Therefore, it is very important to make use of context aware APIs when doing any I/O operation.
+
+Let us summarize
+
+in this module we saw setting of http server timeouts with context package we saw setting of http server timeout is important to conserve the system resources and to protect against DDoS attacks.
+
+We used timeout handler and the request context to set the time out for http handler functions, and the request context was propagated down the call graph.
+
+Which allows the handler functions and other I/O operations to terminate their activity and return on timer expiry, thereby freeing up the system resources.
+
+## Interface:
+
+Let us start with an example.
+
+![alt text](image-144.png)
+
+Here we have a program in which we are comparing the density of metals. The metal structure has two fields, mass and volume. It has method density, which calculates the density of metals, using the formula mass divided by volume and it returns the value.
+
+We are using the function is denser, to compare the density of two metals. It is using the method density to get the density of metals passed in as parameters.
+
+It's going to return true, if the first metal passed as parameter has higher density than the second one else is going to return false.
+
+We know the mass and volume of gold and silver, we want to know which one of these metals is denser. We call is denser function, passing the pointer to gold and silver as inputs. We are using pointers as density method is having a pointer receiver.
+
+We are printing the message based on the result.
+
+Let us execute this program to know which one of these metals is denser. It turns out gold has higher density than the silver. Now, we want to extend this program, to this program we want to add other objects like gases, so we need to define a new type gas of type struct
+
+We could define a separate function similar to is denser, that we have for metals, but can we avoid having repetition of similar code?
+
+Can we use the is denser, function itself?
+
+So instead of specifying the data type, can we specify the behavior of the object?
+
+This is where the interfaces comes into picture.
+
+#### If something can do this, then it can be used, here is what interfaces allows us to achieve.
+
+The concrete type in our example, metal and gas have a common behavior density.
+
+So we can define an abstract type, dense, as an interface, which defines the behavior density with its methods signature.
+![alt text](image-145.png)
+
+In our utility function is denser, instead of the concrete type pointer the metal, we can use the interface type dense, that guarantees that the concrete types, that are passed in as input will have the method density, with the signature as defined in the interface.
+
+So is denser, function, can use the method density from the parameters that are passed in as inputs.
+
+When we call the is denser function, we can only pass the variables of the concrete type that possesses the methods defined in the interface dense.
+
+![alt text](image-146.png)
+
+But how is the interface is able to dynamically dispatch to the correct method and the receiver value in the runtime?
+
+Type is a compile time property.
+
+![alt text](image-147.png)
+
+When we assign an address of gold variable to a pointer of type metal, we can call the metal density, which in-turn calls the method defined for that type metal, with the receiver value of gold.
+![alt text](image-148.png)
+
+But when we assign the address to the value of the interface type and call the density method, then how is the interface able to dynamically dispatch to the current method and the receiver value?
+![alt text](image-149.png)
+
+Let us look into how interfaces work.
+
+Conceptually, a value of the interface type has two components,
+
+dynamic type and dynamic value.
+
+When we declare a variable of type interface, dynamic type and the dynamic value are set to nil.
+
+When we assign a value, that is pointer to variable gold, the interface dynamic type is set to type descriptor that is pointer type of metal.
+
+![alt text](image-150.png)
+
+The interface dynamic value is assigned the reference to the metal structure, which represents the values assigned to the gold variable.
+![alt text](image-151.png)
+
+When we call a method through an interface, it uses dynamic dispatch, the compiler would have generated code to obtain the address of the method from the type descriptor.
+
+So in the run time an indirect call can be made from that address.
+![alt text](image-152.png)
+
+The receiver argument for the call is a copy of the interfaces dynamic value.
+
+So when we make the method call through the interface, it becomes equivalent to calling the method from the value of that type.
+
+![alt text](image-153.png)
+
+Similar things happen when we assign the value of gas type to the interface, dynamic type is set to pointer to gas type, dynamic value points to the value of the oxygen variable.
+![alt text](image-154.png)
+
+When we call the density method, it uses the address of the method from the type descriptor to make an indirect call to the method which uses the dynamic value as its receiver value.
+![alt text](image-155.png)
+
+The purpose of interface is, interfaces enables us to encapsulate the logic within the methods of the user defined type.
+
+Each of the data type metal and gas has its own formula to calculate the density. So we can encapsulate that logic within its methods. And interfaces provides an abstraction for the higher level functions.
+
+With a guarantee on the behavior of the underlying concrete type so that we can write versatile code as higher level functions are not tied to the details of a particular implementation.
+
+![alt text](image-156.png)
+
+## Interface Implicit
+
+#### Implicit interfaces lead to good design
+
+Implicit interfaces leads to good design.
+
+Interfaces are satisfied implicitly. In Java we would declare a class as implements an interface explicitly,
+![alt text](image-157.png)
+
+but in Go there is no such explicit syntax. There is no implements keyword, rather, user defined types just need to possess the method defined in the interface to be considered an instance of the interface.
+
+So the definition of the interface is : decoupled from its implementation.
+
+This gives a lot of flexibility.
+
+We don't have to lock ourselves with the abstractions at the start of the project itself, by having to define the interfaces before the implementation.
+
+In Go, we can define the interfaces as and when the abstractions becomes apparent.
+
+This design lets us to create new interfaces that are satisfied by the existing concrete types. We do not have to go back and tag every implementation, which sometimes may not be possible if the implementation is not under our control, like the standard libraries or any third party code.
+
+Interface definition and the concrete type definition could appear in any package without prearrangement. So it makes it easier to abstract the dependencies, when implementing a new package where we can define an interface with the signatures that we want without having to import another package.
+
+The convention in Go is to keep the interface simple and short.
+
+We define the interfaces when there are two or more concrete types that must be dealt in a uniform way. We create smaller interfaces with fewer and simpler methods. Smaller interfaces are easier to satisfy when new types comes along.
+
+A good rule of thumb for the interface design is to ask only for what is needed.
+
+## Interface from Standard Library
+
+In this module, we will look into using the interfaces from the standard library.
+
+![alt text](image-158.png)
+
+Here is an example, we are calling the function Fprintf, on the first call we are passing os.Stdout as input, which is of type os.File to print the string "hello" on the standard output.
+
+On the second call, we are passing the reference to the variable of type bytes.Buffer as input to write the string world, onto the buffer.
+
+Fprintf is able to take values of different type as input and is able to perform different operations printing to standard out or writing to buffer, how is this working?
+
+Let us see.
+
+We are looking at the implementation of Fprintf in fmt package.
+![alt text](image-161.png)
+
+Fprintf takes io.Writer interface type as the first parameter.
+
+io package defines the writer interface, it contains the method signature for write.
+
+![alt text](image-163.png)
+
+os package, file type, provide an implementation for the write method, with the signature as specified in the writer interface.
+
+In this implementation, it writes the slice of bytes passed in as input to the file handle.
+
+bytes package, buffer type, also provides an implementation for the write method with the signature as specified in the writer interface.
+
+In this implementation, it copies the slice of bytes passed in as input into the buffer.
+
+We come back to the Fprintf implementation, Fprintf calls the write method on the interface value, trusting that the callers of Fprintf, can only pass the concrete types that implements the write method, with the same signature as specified in the writer interface.
+
+![alt text](image-164.png)
+
+So the interface definition acts as a contract, Fprintf does not need to assume any representation of the interface value, whether the value is writing to a file or to memory, it just relies on the behavior guaranteed by the io writer interface, that the write method is going to be there and it can call it, with the signature as specified in the interface definition.
+
+In this way, we are able to use a Fprintf with any type that provides an implementation for the writer interface.
+
+io writer interface is one of the most widely used interfaces, as it provides an abstraction of all the types to which bytes can be written, which includes files, memory buffers, network connections, http clients and many more.
+
+Other popular interface types in the io package are,
+
+Reader interface, a reader represents any type from which we can read bytes.
+
+closer interface, a closer is any value that we can close, such as a file or network connection.
+
+![alt text](image-165.png)
+
+We can embed existing interfaces to create new interface types, we have read writer interface, which has embedded definitions of reader and writer interface.
+
+![alt text](image-166.png)
+
+read write closer interface has embedded definition of reader writer closer interfaces.
+
+![alt text](image-167.png)
+
+So for a type to satisfy, read write closer interface, it has to possess the method defined in reader interface, writer to interface and closer interface.
+
+Other popular interface is stringer interface, which is defined in fmt package.
+![alt text](image-168.png)
+
+Stringer interface provides a way for the types to control how their values are going to be printed.
+
+The print functions in fmt package and other packages checks if the concrete type satisfies the stringer interface.
+
+If it does, then it can call the string method of the type to format the values before printing them.
+
+Let us summarize,
+
+we saw io writer interface which provides an abstraction of all the types to which bytes can be written.
+
+we saw stringer interface, which provides a way for the types to format their values for print.
+
+### Exercise io.Writer interface 03-exercise/01-interfaces/03-byte-counter
+
+### Exercise Stringer interface 03-exercise/01-interfaces/04-string
+
+## Interface Satisfaction
+
+A type satisfies an interface, if it implements all the methods the interface defines.
+
+For example os.File, satisfies, io.Reader, Writer, Closer and io.ReadWriter interfaces as it has implementations for read write and close methods.
+
+bytes.Buffer on the other hand, satisfies, io.Reader, Writer and io.ReadWriter interfaces, as it has implementations for read and write methods. But it does not satisfy closer interface as it does not have close method defined.
+
+The assignable rule for the interface value is, an expression can only be assigned to an interface only if its type satisfies the interface.
+
+In this example, we are declaring a variable of type io.Writer,
+![alt text](image-169.png)
+
+we can assign os.Stdout as it is of type os.File, which implements the write method.
+
+We can also assign a pointer to bytes.Buffer as it also implements the write method.
+
+But on assigning time.second, which is of type, time duration, the compiler gives an error, time duration has missing method, write.
+
+So we cannot assign the type to the value of the interface time if it does not implement all the methods specified in the interface definition.
+
+An interface conceals the concrete type and value and interface wraps the concrete type and only the method defined in the interface are revealed, even if the concrete type implements other methods.
+
+For example, os.File, has the implementation for write and close methods, so from the instance of the os.File such as os.Stdout, we can call the write and close methods.
+
+![alt text](image-170.png)
+
+In this example, we see that we have a utility function printer which takes a file handle of type os.File and string as input, its intended purpose is only to write the string to the file.
+
+![alt text](image-171.png)
+
+But it does not stop for someone to add the code, to close the file handle, this breaks the intention for which the function was created, resulting in bad code.
+
+Can we prevent this?
+
+If in the printer function instead of os.File.
+
+If it were to take io.Writer the interface as input, then we can limit the method exposed to the printer function to only the write method.
+
+![alt text](image-172.png)
+
+If someone were to try to call the close method, the compiler will give an error, io.Writer has no field or method close.
+
+In this way, we can conceal the concrete type and the value it holds and expose only limited functionality to where it is required.
+
+![alt text](image-173.png)
+
+This leads to cleaner code and we know which function can do what.
+
+Let us summarize,
+
+a type satisfies an interface, if it implements all the methods the interface defines.
+
+An interface wraps the concrete type. Only the method defined by the interface are revealed, even if the underlying concrete type implements other methods.
+
+## Type assertion
+
+Let us consider an example, net package provides a definition for the types tcp conn and udp conn, both of them satisfy the conn interface, which defines the basic methods like read write and close.
+
+![alt text](image-174.png)
+
+Apart from those methods, tcp conn and udp conn have their own methods, one of them is closeWrite method for this tcp conn,
+
+![alt text](image-175.png)
+
+and udp conn does not have this method as this method is specific for tcp protocol.
+
+Suppose in our application we have a function shutdownWrite, which takes net conn interface as input, this function is supposed to call the close write method to shut down the write side of the tcp connection.
+
+![alt text](image-176.png)
+
+The interface value conn passed as input could contain udp conn value or tcp conn value.
+
+Since net conn interface type does not include a close write method, we cannot call close write method directly from the interface value.
+
+![alt text](image-177.png)
+
+But we could call close write method, from the value of net tcp conn type as net tcp conn type, implements the close write method.
+
+![alt text](image-178.png)
+
+So what is needed is, we need a way to extract the underlying concrete value from the interface value.
+
+If the underlying concrete value is of type net tcp conn, then we should be able to call the closeWrite method.
+
+But if it is of type, udp conn, then we need a way to handle that scenario as the net udp conn does not have the method close write.
+
+![alt text](image-179.png)
+
+This is where type assertion comes into play.
+
+type assertion is an operation that is applied on the interface value.
+
+It is used to extract the dynamic value from the interface value.
+
+type assertion can be done using two syntax.
+
+![alt text](image-180.png)
+
+This is one of them, where X is an expression of the interface type and T is a concrete type, whose value we want to extract.
+
+This operation checks whether X's dynamic type is identical to the concrete type T, if it is, then it's going to return the dynamic value.
+
+If that fails, then the operation is going to panic.
+
+To guard against panic, we can use this syntax, which returns a second return value, which is boolean, which indicates whether the specified type is contained in the interface value or not.
+
+![alt text](image-181.png)
+
+If type assertion is successful, then the returned value for ok will be true and the value of the variable V will be set to the dynamic value.
+
+If the type assertion fails, then the value of ok will be false and the value of the variable, v will be set to the zero value of the type.
+
+In this syntax, there won't be any one time panic, even if the type assertion fails.
+
+Let us come back to our shutdown write function, let us use type assertion on the interface value conn.
+
+![alt text](image-182.png)
+
+We specify the concrete type, pointer to net tcp conn, within the parenthesis we receive the two returned values.
+
+If that type assertion is successful, the return value for ok will be true and the variable V will be set to the dynamic value, that is the value of net tcp conn.
+
+And we can call the method close write
+
+If the type assertion fails, then the returned value for ok will be false, so we can just return without calling the method close write
+
+Let us summarize,
+
+type assertion is used to get the concrete value from the interface value by specifying the explicit type.
+
+type assertion is useful to apply distinguished operation of the type.
+
+### Exercise Type Assertion 03-exercise/01-interfaces/09-triangle
+
+## Empty Interface
+
+We see empty interfaces, used a lot of places in Go source code.
+
+![alt text](image-183.png)
+
+Empty interface type places no demand on the types that satisfies it. There are no methods to implement. so we can assign any value to the empty interface.
+
+The functions println and errorf take empty interface as parameter, so we can pass any type in Go as input. And internally they use type switch or type assertion to distinguish the types.
+
+Let us see an example. In this example, we are passing integer type and string type values to the describe function that takes empty interface as its parameter.
+
+![alt text](image-184.png)
+
+In our function describe, we have used type switch.
+
+![alt text](image-185.png)
+
+Type switch is used to discover the dynamic type of an interface variable. Types switch uses the syntax of type assertion with the keyword type inside the parentheses.
+
+Type switch is like a regular switch statement, but the cases specify the types, not the values. The type is compared against the type of the value held by the given interface value.
+
+In our first call to describe function with integer value, 42, int case in type switch, gets executed and we get the output, v is integer with value 42.
+
+In our second call, to the describe function with string hello, string case in type switch gets executed and we get the output v is string whose length is five.
+
+![alt text](image-186.png)
+
+Empty interface gives lot of flexibility, but there is a downside as well.
+
+We need to be careful when using them, as empty interface, gives no knowledge about the data that is coming in to the function.
+
+So the benefits of the statically typed language is nullified, the compiler no longer has the ability to tell us that, we made a mistake and passed a wrong data type to the function.
+
+We will need to use type switch or type assertion to turn arbitrary type to specific type.
+
+In most cases, rather than using empty interface, it is almost always preferable to use specific data type or create an interface with some specific method that we need.
+
+This will, at the very least, ensure that whatever we pass to the function has the method that we need and we do not have to use type switch or type assertion inside our code to access those methods.
+
+# The End :/
