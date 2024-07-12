@@ -220,7 +220,7 @@ channels are means of having GoRoutines share data. They can talk to each other 
 
 The Producer/Consumer Problem. ( we will solve this using channels)
 
-![alt text](image.png)
+![$1](./images/image$2.png)
 
 Creating Race Condition scenerio:
 
@@ -704,12 +704,14 @@ func diningProblem(philosopher Philosopher, wg *sync.WaitGroup, forks map[int]*s
 ```
 
 ### Channels:
+
 - Means of allowing communication to and from a GoRoutine
 - Channels can be buffered, or unbuffered
 - Once you're done with a channel, you must close it ( otherwise we will face resource leake)
 - Channels typically only accept a given type or interface.
 
-#### Buffered/UnBuffered channel 
+#### Buffered/UnBuffered channel
+
 ```go
 package main
 
@@ -739,6 +741,7 @@ func main() {
 ```
 
 # The Sleeping Barber Problem solve using go Channel
+
 ```go
 package main
 
