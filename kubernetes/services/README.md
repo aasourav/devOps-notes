@@ -62,4 +62,4 @@ how can we access : (requirement dns (coredns) server should be install in clust
 
 3. LoadBalancer - when we expose the workload outside the cluster.
 
-4. ExternalName -
+4. ExternalName - use case: you want to redirect/ you want to resolve specific dns (ex: resolve 'abc-website' to 'abc.dev')
