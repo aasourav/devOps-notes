@@ -1067,7 +1067,7 @@ And G1 will be scheduled to run on os thread when it gets it chance.
 To summarize,
 we saw what happens in the case when the giant buffer is full and goroutine tries to send value.
 
-This in the goroutine gets blocked, thisparked on sendq, the data is saved in the elem field of th sudog structure
+This in the goroutine gets blocked, thisparked on sendq, the data is saved in the elem field of the sudog structure
 
 when Receiver comes along, it dequeues the value from buffer
 
