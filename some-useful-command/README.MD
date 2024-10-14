@@ -59,3 +59,55 @@ sudo systemctl enable mongod
 
 mongosh "mongodb://mah007:123456789Ma@172.17.18.176:27017/testdb?retryWrites=true&w=majority&authSource=admin"
 ```
+
+## Mysql push data script
+some useful mysql command 
+```sh
+    show databases;
+    show tables;
+    select * from table_name;
+    use table_name;
+```
+```sh
+
+#!/bin/bash
+
+# Variables
+DB_HOST="167.172.5.224" # MySQL host (change if needed)
+DB_PORT="3306"
+DB_USER="ahsan"               # MySQL user (replace with your user)
+DB_PASS="12345678Ma"      # MySQL password (replace with your password)
+DB_NAME="test"         # Database name
+TABLE_NAME="pushdata"         # Table name
+
+# Number of rows to insert (You can adjust this number to control the size of data)
+ROWS=100000
+
+# Function to insert data using a loop
+insert_data() {
+    echo "Inserting $ROWS rows into $DB_NAME.$TABLE_NAME..."
+    
+    for ((i=1;i<=ROWS;i++)); do
+        # Generate dummy data for the row
+        VALUE1="Data_$i"
+        VALUE2="This is a sample text for row $i"
+        
+        # Insert data into MySQL
+        mysql -h "$DB_HOST" -P "${DB_PORT}" -u "$DB_USER" -p"$DB_PASS" -e "
+        USE $DB_NAME;
+        INSERT INTO $TABLE_NAME (column1, column2) VALUES ('$VALUE1', '$VALUE2');
+        "
+        
+        # Print a message every 10,000 rows
+        if (( i % 10000 == 0 )); then
+            echo "Inserted $i rows..."
+        fi
+    done
+    
+    echo "Data insertion complete."
+}
+
+# Call the insert_data function
+insert_data
+
+```
