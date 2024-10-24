@@ -14,24 +14,24 @@ Look for the DNS Zone Editor (under the "Domains" section in cPanel)
 ### Nginx setup
 
 ```sh
-    sudo apt install nginx
-    systemctl status nginx
-    sudo nano /etc/nginx/sites-available/amirathlube.com # then add configuration
-    sudo ln -s /etc/nginx/sites-available/amirathlube.com /etc/nginx/sites-enabled/
-    sudo nginx -t
-    sudo systemctl restart nginx
+sudo apt install nginx
+systemctl status nginx
+sudo nano /etc/nginx/sites-available/amirathlube.com # then add configuration
+sudo ln -s /etc/nginx/sites-available/amirathlube.com /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
 ```
 
 #### configuration for `/etc/nginx/sites-available/amirathlube.com`
 ```text
 server {
-        listen 80;
-        listen [::]:80;
-        server_name amirathlube.com www.amirathlube.com;
-        location / {
-                proxy_pass http://localhost:3000;
-                include proxy_params;
-        }
+    listen 80;
+    listen [::]:80;
+    server_name amirathlube.com www.amirathlube.com;
+    location / {
+        proxy_pass http://localhost:3000;
+        include proxy_params;
+    }
 }
 ```
 
