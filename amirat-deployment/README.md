@@ -1,3 +1,5 @@
+## Ref: [Next.js 14 Deployment to VPS with GitHub Actions CI/CD](https://www.youtube.com/watch?v=fkzpywlJcMA)
+
 ### Adding domain on cpanel
 At first go to yourdomain.com/cpanle or yourdomain.com:2083
 
@@ -38,3 +40,4 @@ server {
     sudo apt install certbot python3-certbot-nginx
     sudo certbot --nginx -d amirathlube.com -d www.amirathlube.com
 ```
+
