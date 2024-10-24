@@ -38,7 +38,9 @@ server {
 ### SSL encryption (requires setup configuration for `/etc/nginx/sites-available/amirathlube.com`)
 
 ```sh
-    sudo apt install certbot python3-certbot-nginx
-    sudo certbot --nginx -d amirathlube.com -d www.amirathlube.com
+sudo apt install certbot python3-certbot-nginx
+dig amirathlube.com #check the server is mapped in this domain
+dig www.amirathlube.com #check the server is mapped in this domain
+sudo certbot --nginx -d amirathlube.com -d www.amirathlube.com
 ```
 
