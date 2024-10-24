@@ -6,10 +6,10 @@ At first go to yourdomain.com/cpanle or yourdomain.com:2083
 Look for the DNS Zone Editor (under the "Domains" section in cPanel)
 ![alt text](images/image.png)
 
-![alt text](image/image-1.png)
+![alt text](images/image-1.png)
 
 #### click `Manage`
-![alt text](image/image-2.png)
+![alt text](images/image-2.png)
 
 ### Nginx setup
 
@@ -17,6 +17,7 @@ Look for the DNS Zone Editor (under the "Domains" section in cPanel)
     sudo apt install nginx
     systemctl status nginx
     sudo nano /etc/nginx/sites-available/amirathlube.com # then add configuration
+    sudo ln -s /etc/nginx/sites-available/amirathlube.com /etc/nginx/sites-enabled/
     sudo nginx -t
     sudo systemctl restart nginx
 ```
