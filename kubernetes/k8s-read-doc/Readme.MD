@@ -238,3 +238,32 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 ```
 
+
+
+### Concept -> Containers -> Images
+
+A container image represents binary data that encapsulates an application and all its software dependencies.
+
+container image can also include a registry hostname:
+- `fictional.registry.example:10443/imagename`
+
+- if dont specify the hostname , k8s assumes it docker public registry
+- After the image name part you can add a tag or digest 
+-  It can be up to 128 characters long.
+- And must follow the next regex pattern: [a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}
+- If you don't specify a tag, Kubernetes assumes you mean the tag latest
+
+
+
+Image pull policies:
+- IfNotPresent: the image is pulled only if it is not already present locally.
+- Always: What "Always" does: When you set imagePullPolicy: Always, Kubernetes will always check with the image registry (like Docker Hub) every time it runs a container. What Kubernetes checks for: It asks the registry, "What is the digest of this image?" (A digest is a unique fingerprint for a specific version of the image.)
+- Never: the kubelet does not try fetching the image. If the image is somehow already present locally, the kubelet attempts to start the container; otherwise, startup fails.
+
+Note: You should avoid using the :latest tag when deploying containers in production as it is harder to track which version of the image is running and more difficult to roll back properly.
+
+To make sure the Pod always uses the same version of a container image, you can specify the image's digest; replace <image-name>:<tag> with <image-name>@<digest> (for example, image@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2).
+
+- you omit imagePullPolicy,  default : `IfNotPresent`
+- you omit imagePullPolicy, if you set image tag to `latest`, default: `Always`
+- you omit imagePullPolicy, if you omit image tag , default: `Always`
