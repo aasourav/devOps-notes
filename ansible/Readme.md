@@ -31,3 +31,57 @@ ansible has 3 main properties:
  
  now if we ssh those ip then it will not ask password later
  
+
+ check ansible is working 
+ ```sh
+ ansible localhost -m ping
+ ```
+ response:
+ ```json
+  localhost | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+ ```
+
+
+ ansible config:
+ ```sh
+/etc/ansible/ansible.cfg
+/etc/ansible/hosts
+ ```
+
+ ```text
+ubuntu@ip-172-31-32-55:/etc/ansible$ cat ansible.cfg 
+# Since Ansible 2.12 (core):
+# To generate an example config file (a "disabled" one with all default settings, commented out):
+#               $ ansible-config init --disabled > ansible.cfg
+#
+# Also you can now have a more complete file by including existing plugins:
+# ansible-config init --disabled -t all > ansible.cfg
+
+# For previous versions of Ansible you can check for examples in the 'stable' branches of each version
+# Note that this file was always incomplete  and lagging changes to configuration settings
+
+# for example, for 2.9: https://github.com/ansible/ansible/blob/stable-2.9/examples/ansible.cfg
+ ```
+
+
+ ### first ansible playbook
+
+ ```yaml
+ --- # tell that this is yaml file
+ - name: playbook name
+  hosts: localhost #where to action
+    
+  tasks:
+  - name: Taks 1
+    ping:
+ ```
+
+ ![alt text](image.png)
+
+ ```sh
+ ansible-playbook first_pb.yaml
+ ansible-playbook --syntax-check first_pb.yaml #syntax check
+ ```
