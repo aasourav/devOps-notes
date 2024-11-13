@@ -147,6 +147,9 @@ then you will see a command to join worker nodes
 
 ex:
 
+
+#### To join worker node into the cluster 
+(This command is just demo you can see this command when you run `kubeadm token create --print-join-command`)
 ```sh
 kubeadm join 172.17.18.200:6443 --token 5g5jo2.agl26wfzkujgjt3s --discovery-token-ca-cert-hash ha256:57795a664200425258ed0619af960fe476d1ae93f99182a3d710ce1185468d3f
 ```
