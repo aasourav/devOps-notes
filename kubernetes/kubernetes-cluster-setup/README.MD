@@ -151,3 +151,19 @@ then you will see a command to join worker nodes
 ```sh
 kubeadm join 172.17.18.200:6443 --token 5g5jo2.agl26wfzkujgjt3s --discovery-token-ca-cert-hash ha256:57795a664200425258ed0619af960fe476d1ae93f99182a3d710ce1185468d3f
 ```
+
+
+
+#### setup nfs on kubernetes
+
+##### first install `nfs-common` on every worker node
+```sh
+  sudo apt install -y nfs-common # this is important otherwise nfs-operator will not start
+```
+
+
+```sh
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=172.17.17.74 --set nfs.path=/var/k8-nfs/data
+```
+
