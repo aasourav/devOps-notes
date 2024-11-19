@@ -73,6 +73,10 @@ net.ipv4.ip_forward                 = 1
 EOF
 ```
 
+```sh
+sudo sysctl --system
+```
+
 
 #### Install containerd (Master & worker)
 ```sh
