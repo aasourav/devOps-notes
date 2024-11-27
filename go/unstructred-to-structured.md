@@ -19,7 +19,7 @@ import (
 deploymentData := deployment.UnstructuredContent()
 selector := deploymentData["spec"].(map[string]interface{})["selector"].(map[string]interface{})
 
-var labelSelector metav1.LabelSelector
+var labelSelector *metav1.LabelSelector
 runtime.DefaultUnstructuredConverter.FromUnstructured(selector, &labelSelector)
 
 fmt.Println(labelSelector)
