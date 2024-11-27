@@ -11,6 +11,11 @@ readyPods := status["readyPods"].(int64)
 
 #### Unstractured with structured (for kubernetes go client)
 ```go
+
+import (
+	"k8s.io/apimachinery/pkg/runtime"
+)
+
 deploymentData := deployment.UnstructuredContent()
 selector := deploymentData["spec"].(map[string]interface{})["selector"].(map[string]interface{})
 
