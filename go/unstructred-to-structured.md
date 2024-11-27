@@ -9,7 +9,7 @@ readyPods := status["readyPods"].(int64)
 ```
 
 
-#### Unstractured with structured (for kubernetes go client)
+#### Unstractured to structured using kubrentes go client `runtime`(this is recommend)
 ```go
 
 import (
