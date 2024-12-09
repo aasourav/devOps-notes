@@ -9,7 +9,7 @@ readyPods := status["readyPods"].(int64)
 ```
 
 
-#### Unstractured with structured (for kubernetes go client)
+#### Unstractured to structured using kubrentes go client `runtime`(this is recommend)
 ```go
 
 import (
@@ -19,7 +19,7 @@ import (
 deploymentData := deployment.UnstructuredContent()
 selector := deploymentData["spec"].(map[string]interface{})["selector"].(map[string]interface{})
 
-var labelSelector metav1.LabelSelector
+var labelSelector *metav1.LabelSelector
 runtime.DefaultUnstructuredConverter.FromUnstructured(selector, &labelSelector)
 
 fmt.Println(labelSelector)
