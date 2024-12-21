@@ -84,4 +84,8 @@ ubuntu@ip-172-31-32-55:/etc/ansible$ cat ansible.cfg
  ```sh
  ansible-playbook first_pb.yaml
  ansible-playbook --syntax-check first_pb.yaml #syntax check
+
+ ansible-inventory --list
  ```
+ ![alt text](image-1.png)
+
