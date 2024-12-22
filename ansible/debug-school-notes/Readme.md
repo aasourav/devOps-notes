@@ -412,8 +412,58 @@ Declare the var through the task level
 ```
  
 Register variable ( set variable during runtime ) #need to show documentation
+Also try to learn the precedence of variables
+
+#### Environment variable
+Learn diffrent way to declare variable in ansible.
+
+[web]
+12.3.4.2
+12.3.4.3
+12.3.4.4
+
+[web:vars]  #Group of group
+name="hi brother" #this variable can be access in the playbook
+
+we should seprate this (up) variable from inventory.ini file. it's not good practice to store it here. 
+
+we will keep it Environment directory
+let's say
+for host -> host_vars 
+for grp -> group_var  
+![alt text](image.png)
+if we keep structure like this ansile automatically read those during runtime.
+whre we will keep the variable in those files
+
+env in command line 
+```sh
+ansible-playbook play1.yaml -i inverntory -e name=abc
+```
+
+##### fact variable (system variable)
+- System vars which is set to ansible_XXXXXX (os name, architecture)
+- ANsible uses `factor` ro get system information ( ansible ask factor to get they system information. factor is a tool). `factor` sofware encoded in a module called `setup`
+
+```sh
+ansible localhost -m setup (it will show us the all the system info) | grep something
+```
+
+Gathering Facts is a default task (while runnin ansible sccript we can see it). we also can disable it.
+
+we can also set our own facts (see details on google)
 
 
+
+#### Playbook Conditioning
+we can set run specific task for if the os is RedHat
+![alt text](image-1.png)
+
+
+#### Playbook Iteration
+#### Playbook Running External script
+#### Playbook templates
+#### Playbook handlers
+#### Roles
  
  
  
