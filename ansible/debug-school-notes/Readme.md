@@ -220,6 +220,7 @@ ansible
     - Can be on command line `-i`
     - can be in file(.ini)
     - can be script
+	- can be directory
  It has group
     - ALL
     - No GROUP
@@ -456,20 +457,91 @@ we can also set our own facts (see details on google)
 
 #### Playbook Conditioning
 we can set run specific task for if the os is RedHat
-![alt text](image-1.png)
 
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+And will be applide here
+
+![alt text](image-4.png)
+![alt text](image-5.png)
 
 #### Playbook Iteration
+
+`with_items` helps to iterate
+![alt text](image-6.png)
+
+![alt text](image-7.png)
+
+we should search more way to looping
+
 #### Playbook Running External script
+![alt text](image-8.png)
+
 #### Playbook templates
+we use this for dynamic behavior
+
+template using `jinj2` 
+- file has to be in .j2
+- template module (use template module to use this .j2 file)
+
+![alt text](image-9.png)
+
+so we can use it for modification ( ex? change some value nginx.conf . so we have to make nginx.conf.j2 source and destination is nginx.conf)
+
 #### Playbook handlers
+- it's just task (special task).
+- it execute only and only
+	- You call it using notify
+	- Calling tasks is having changed true. 
+
+![alt text](image-10.png)
+
+#### Exception Hanlding using Block
+See "error handling in playbook" this is a good documentation on it (ansible)
+
+
 #### Roles
+It's a directory structure 
  
+ - It's way to manage a complexit of env
+ - SO many variables for playbook
+ - So many tasks for playbook
+ - SO many templates
+ - So many handlers
+ - So many files and script
+ - Share your ansible code with others
+
+command
+```sh
+ansible-galaxy init role_name
+```
+![alt text](image-11.png)
  
+ ![alt text](image-12.png)
+ ![alt text](image-13.png)
+
+
+ #### Vault
+
+ Keeping the sensetive data (probably variable) here
+
+ ```sh
+ansible-vault -h # for details
+ansible-value encrypt inventory # this is direcotory . ask password
+ansible-playbook -i inventory site.yaml --ask-vault-pass
+ ```
+
+ #### Development ansible module
+
+ ![alt text](image-14.png)
+
+ In any language we can write ansible module but the requirement is it must have runtime in the ARS .
+ The best practice is keep the custom module is in roles ( library )
  
- 
- 
- 
+ ![alt text](image-15.png)
+
+ ## more ref : [More ansible ref DevOps School](https://github.com/devopsschool-training-notes/Ansible-astrazeneca-June-2020/tree/master)
  
  
  
