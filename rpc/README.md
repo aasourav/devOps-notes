@@ -19,7 +19,7 @@ establishing RPC using `net/rpc` is only for  `go-to-go` communication. for vari
     12 07 73 75 63 63 65 73 73 18 01
 ```
 
-#### why RPC is faster than REST??
+### Why RPC is faster than REST??
 
 
 ##### REST journey:
@@ -106,7 +106,6 @@ Payload: 08 7b 12 05 41 6c 69 63 65 18 1e
 ###### Layer 1 (Physical Layer): The data is transmitted over the physical medium, such as Ethernet cables, Wi-Fi, or fiber optic cables. The data is converted into electrical signals or light pulses for transmission through the hardware
 
 
-#### Characteristics of RPC
+### Characteristics of RPC
 
-### Why RPC is faster than REST
 
