@@ -31,18 +31,16 @@ System -> OS ->
                         
                         Network -----> 1
                         USR ------> Multiple User 
-
+```
                 CGroups
                     ![alt text](image-2.png)
                     Allocating CPU , RAM to Process ID  ( if we see htop/top then we can see the ram , cpu allocation alongside the process id )
                     ![alt text](image-3.png) . That's whey we need CGroup for running an application
-                Security
+                Security <br/>
                     Capability (access of user)
-                Storage
-                Networking
+                Storage <br/>
+                Networking <br/>
                 ![alt text](image.png)
-
-```
 
 Now look at the relation
 
