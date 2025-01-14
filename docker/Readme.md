@@ -3,7 +3,7 @@
 before talk about container. 
 what are the components in system which required to run any app
 what are the components in system which required to access any app
-```md
+
 System -> OS -> 
                 Kernal
                   Namespace
@@ -31,7 +31,7 @@ System -> OS ->
                         
                         Network -----> 1
                         USR ------> Multiple User 
-```
+
                 CGroups
                     ![alt text](image-2.png)
                     Allocating CPU , RAM to Process ID  ( if we see htop/top then we can see the ram , cpu allocation alongside the process id )
