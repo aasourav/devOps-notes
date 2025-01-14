@@ -3,7 +3,7 @@
 before talk about container. 
 what are the components in system which required to run any app
 what are the components in system which required to access any app
-```md
+
 System -> OS -> 
                 Kernal
                   Namespace
@@ -36,13 +36,11 @@ System -> OS ->
                     ![alt text](image-2.png)
                     Allocating CPU , RAM to Process ID  ( if we see htop/top then we can see the ram , cpu allocation alongside the process id )
                     ![alt text](image-3.png) . That's whey we need CGroup for running an application
-                Security
+                Security <br/>
                     Capability (access of user)
-                Storage
-                Networking
+                Storage <br/>
+                Networking <br/>
                 ![alt text](image.png)
-
-```
 
 Now look at the relation
 
