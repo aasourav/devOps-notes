@@ -225,6 +225,4 @@ tmpfs           5.8G     0  5.8G   0% /sys/devices/virtual/powercap
 
 # here we can see each container has own mount ( if you enter another container then you will see same mount but they are separate from each other. )
 ```
-
-
 Note: C groups is common for all container. it's on the host level.  it's not inside the container. c groups taks is to assign CPU and Memory to the process(here container)
