@@ -225,4 +225,11 @@ tmpfs           5.8G     0  5.8G   0% /sys/devices/virtual/powercap
 
 # here we can see each container has own mount ( if you enter another container then you will see same mount but they are separate from each other. )
 ```
-Note: C groups is common for all container. it's on the host level.  it's not inside the container. c groups taks is to assign CPU and Memory to the process(here container)
+Note: C groups is common for all container. it's on the host level.  it's not inside the container. c groups taks is to assign CPU and Memory to the process(here container)'
+
+Process Id 1 is running then container running (same as for physical machine and virtual machine) . Container exiting means Process Id 1 is not running / killed
+
+PID 1 is the systemd which hold the OS (for physical and virtual machine)
+but for Container PID 1 is can be anything ( if anything is running your container is running. what will be running that decide by image developer)
+
+![alt text](image-10.png)
