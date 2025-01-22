@@ -21,7 +21,7 @@ VALUES
     ('Session 1', 1, '2025-01-16 12:00:00', 'completed'),
     ('Session 2', 2, '2025-01-16 13:00:00', 'active'),
     ('Session 3', 3, '2025-01-16 14:00:00', 'completed');
-``
+```
 - Verify data
 ```sh
 SELECT * FROM automation_sessions;
