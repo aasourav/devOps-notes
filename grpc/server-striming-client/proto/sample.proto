@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+
+option go_package = "./"; // where auto generate code will be generated
+
+// Here message is a proto keyword
+// HelloReqeust is a message name
+// inside HelloRequest SomeString is string type
+// SomeString = 1 means it's sequence number 
+message HelloRequest{
+    string SomeString = 1;
+}
+
+message HelloResponse{
+    string Reply = 1;
+}
+
+// service is a proto keyword
+service Example{
+    //rpc fn
+    rpc ServerReply(HelloRequest) returns (stream HelloResponse);
+    
+}
+
+// to run this file it's required probuf compiler
+// go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+// go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+// export PATH="$PATH:$(go env GOPATH)/bin" (Optional, it should automaticlly set)
+
+// sudo apt install -y protobuf-compiler
+// protobuf --version
+// protoc --go-grpc_out=> --go_out=. *.proto
+
+
