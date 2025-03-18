@@ -1,3 +1,21 @@
+. = this key is repeat last action
+X = erase char before cursor
+x = erase char in cursor
+dd= delete the line
+>G = is for set indentation for below all line
+A = go to last in the line add append
+a = go to nex to cursor and append
+$ = go to last char of the line
+C = remove text from current cursor position to last character and insert
+s = remove currnt char and insert
+S = remove current line and insert
+I = go to the first line and insert
+o = new line below and insert
+O = new line top and insert
+f = find char between current cursor to the last line
+; = use last find forward cursor
+. = use last find backword cursor
+
 O = new line top and insert
 f = find char between current cursor to the last line
 ; = use last find forward cursor
