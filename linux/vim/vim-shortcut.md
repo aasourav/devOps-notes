@@ -11,7 +11,8 @@ N = use last search pattern backword
 db = delete backword from cursor's next back char to last char of word
 x = delete char that cursor on it will delete left to right
 dw = delete forword from cursor to next last char of word
-b = move cursor backword wordwise
+b = move cursor backword wordwise(begening of the the next word)
+w = move cursor forword (begining of the next word)
 daw = delete current word cursor on also delete the white space
 ctrl + a increment next number
 ctrl + x decrement next number
