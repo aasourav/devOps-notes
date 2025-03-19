@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sudo apt install -y xvfb xserver-xorg-video-dummy xbase-clients
-sudo apt install -y python3-packaging python3-psutil libutempter0
+sudo apt install -y xvfb xserver-xorg-video-dummy xbase-clients libutempter0
+sudo apt install -y python3-packaging python3-psutil
 # Check if wget is installed
 if ! command -v wget &> /dev/null; then
     echo "wget is not installed. Installing now..."
