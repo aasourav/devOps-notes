@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo apt install -y xvfb xserver-xorg-video-dummy xbase-clients libutempter0
+sudo apt install -y python3-packaging python3-psutil
 # Check if wget is installed
 if ! command -v wget &> /dev/null; then
     echo "wget is not installed. Installing now..."
@@ -10,7 +12,6 @@ else
     echo "wget is already installed."
 fi
 
-sudo apt install xvfb xserver-xorg-video-dummy xbase-clients
 
 wget -P ~/ https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
 
