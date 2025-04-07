@@ -65,3 +65,7 @@ grep CRON /var/log/syslog # see cronjobs executions
 ```
 
 
+Step 6: Restore mongodb
+```sh
+mongorestore --uri="mongodb://3.108.64.140:27017" --drop /home/aes-sourav/Downloads/mongo_backup_2025-04-07_10-41-01/dump_2025-04-07_10-41-01 # you have to tell where your prelude.json is located
+```
