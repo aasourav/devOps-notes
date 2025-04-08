@@ -21,6 +21,9 @@ sudo apt install unzip
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 sudo ./aws/install
+
+#or
+curl -s https://gist.githubusercontent.com/aasourav/46312b3b08efacb3fa214888d0584caa/raw/mongo.sh | bash
 ```
 
 Step 4: Create backup script ( before doing this first create a s3 bucket) . give this executable permission
