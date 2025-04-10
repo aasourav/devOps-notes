@@ -85,6 +85,7 @@ mongodump --host 3.110.219.44 --port 27772 \
   --authenticationDatabase admin \
   --db dbName \
   --out $BACKUP_DIR/dump_$TIMESTAMP
+# 'mongodump --uri="mongodb+srv://hrm:BpcQUaseeFLFYcadfIIvaUNu@cluster0.pisbwzh.mongodb.net/mentor_ip?retryWrites=true&w=majority" --out=./dump'
 
 # Compress it
 tar -czf /tmp/$ARCHIVE_NAME -C $BACKUP_DIR .
