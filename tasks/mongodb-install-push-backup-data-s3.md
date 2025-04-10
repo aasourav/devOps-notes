@@ -29,7 +29,7 @@ services:
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root # Set MongoDB root user
-      MONGO_INITDB_ROOT_PASSWORD: menToripdB # Set MongoDB root password
+      MONGO_INITDB_ROOT_PASSWORD: password # Set MongoDB root password
       MONGO_INITDB_DATABASE: myapp # Set the initial database (optional)
     volumes:
       - /home/ubuntu/mongo-data-backup/:/data/db # Persist data to a named volume
@@ -113,5 +113,5 @@ grep CRON /var/log/syslog # see cronjobs executions
 
 Step 6: Restore mongodb
 ```sh
-mongorestore --uri="mongodb://root:menToripdB@3.110.219.44:27772/myapp?authSource=admin" --drop /home/aes-sourav/Downloads/mongo_backup_2025-04-08_06-25-16/myapp # you have to tell where your prelude.json is located
+mongorestore --uri="mongodb://root:password@3.110.219.44:27772/myapp?authSource=admin" --drop /home/aes-sourav/Downloads/mongo_backup_2025-04-08_06-25-16/myapp # you have to tell where your prelude.json is located
 ```
