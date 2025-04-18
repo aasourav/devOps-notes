@@ -44,7 +44,8 @@ services:
       retries: 5
       timeout: 5s
       start_period: 10s
-
+    logging: #if you wanna disable logs
+      driver: none
 networks:
   mongo_network:
     driver: bridge
